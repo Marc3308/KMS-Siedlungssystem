@@ -1,0 +1,17 @@
+name: siedlungundberufe
+version: '${project.version}'
+main: me.marc3308.siedlungundberufe.Siedlungundberufe
+api-version: '1.21'
+
+commands:
+  Siedlung:
+    description: Open a Gui for creation and editing of your Siedlung
+  loadsiedlungyml:
+    description: load the siedlungsyms´l
+  savesiedlungen:
+    description: saves the siedlungen in the yml
+  einladung:
+    description: a siedlungs invite
+permissions:
+  siedlungsmod:
+    description: Darf siedlungen erstellen
