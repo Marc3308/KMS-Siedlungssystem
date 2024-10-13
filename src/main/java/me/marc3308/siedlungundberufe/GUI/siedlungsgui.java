@@ -2,6 +2,7 @@ package me.marc3308.siedlungundberufe.GUI;
 
 import me.marc3308.siedlungundberufe.Siedlungundberufe;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
+import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -18,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static me.marc3308.siedlungundberufe.Siedlungundberufe.plugin;
-import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
+import static me.marc3308.siedlungundberufe.Siedlungundberufe.*;
+import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
 import static org.bukkit.Particle.END_ROD;
 
 public class siedlungsgui implements Listener {
@@ -118,46 +119,60 @@ public class siedlungsgui implements Listener {
             if(e.getCurrentItem().getType().equals(Material.PLAYER_HEAD)){
                 //getting the gast
                 SkullMeta skull=(SkullMeta) e.getCurrentItem().getItemMeta();
-                Player gast = Bukkit.getPlayer(skull.getOwner());
-                if(gast==null)return;
 
-                if(!gast.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER)) {
-                    //invite
-                    p.sendMessage(ChatColor.GREEN+gast.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING)+ChatColor.DARK_GREEN+" wurde eingeladen");
-                    TextComponent loc2=new TextComponent(ChatColor.DARK_GREEN+"Du wurdest als Volksmitglied eingeladen: "+ChatColor.GREEN+s.getName()+ChatColor.YELLOW+"[Click um begutachten]");
-                    loc2.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/einladung"));
-                    gast.sendMessage(loc2);
-                    gast.getPersistentDataContainer().set(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER, siedlungsliste.indexOf(s));
-                    Bukkit.getScheduler().runTaskLater(Siedlungundberufe.getPlugin(), () -> gast.getPersistentDataContainer().remove(new NamespacedKey(plugin, "einladung")), 20*60);
-                } else {
-                    //one admin
-                    if(s.getOwner().size()<2){
-                        List<String> memberlist=s.getMemberlist();
-                        memberlist.remove(gast.getUniqueId().toString());
-                        s.setMemberlist(memberlist);
-                        gast.getPersistentDataContainer().remove(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"));
-                    } else {
-                        int kickvotes=gast.getPersistentDataContainer().getOrDefault(new NamespacedKey(plugin, "kickvotes"), PersistentDataType.INTEGER,0);
+                //in einer siedlung
+                for (String ss : s.getMemberlist()){
+                    if(ss.equals(Bukkit.getOfflinePlayer(skull.getOwner()).getUniqueId().toString())){
 
-                        if(p.getPersistentDataContainer().has(new NamespacedKey(plugin, "kick"+gast.getName()), PersistentDataType.BOOLEAN)){
-                            kickvotes--;
-                            p.getPersistentDataContainer().remove(new NamespacedKey(plugin, "kick"+gast.getName()));
-                        } else {
-                            kickvotes++;
-                            p.getPersistentDataContainer().set(new NamespacedKey(plugin, "kick"+gast.getName()), PersistentDataType.BOOLEAN,true);
-                        }
+                        //get spielerprofil
+                        spielerprovil sp=spielerliste.get(0);
+                        for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(ss))sp=sdp;
 
-                        if(s.getOwner().size()/2.0>kickvotes){
-                            gast.getPersistentDataContainer().remove(new NamespacedKey(plugin, "kickvotes"));
+                        if(s.getOwner().size()<2){
                             List<String> memberlist=s.getMemberlist();
-                            memberlist.remove(gast.getUniqueId().toString());
+                            memberlist.remove(sp.getUuid());
                             s.setMemberlist(memberlist);
-                            gast.getPersistentDataContainer().remove(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"));
+                            if(Bukkit.getPlayer(skull.getOwner())!=null)Bukkit.getPlayer(skull.getOwner()).getPersistentDataContainer().remove(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"));
                         } else {
-                            gast.getPersistentDataContainer().set(new NamespacedKey(plugin, "kickvotes"), PersistentDataType.INTEGER,kickvotes);
+                            int kickvotes=sp.getVoteckicks();
+
+                            if(p.getPersistentDataContainer().has(new NamespacedKey(plugin, "kick"+skull.getOwner()), PersistentDataType.BOOLEAN)){
+                                kickvotes--;
+                                p.getPersistentDataContainer().remove(new NamespacedKey(plugin, "kick"+skull.getOwner()));
+                            } else {
+                                kickvotes++;
+                                p.getPersistentDataContainer().set(new NamespacedKey(plugin, "kick"+skull.getOwner()), PersistentDataType.BOOLEAN,true);
+                            }
+
+                            if(s.getOwner().size()/2.0>kickvotes){
+                                sp.setVoteckicks(0);
+                                List<String> memberlist=s.getMemberlist();
+                                memberlist.remove(sp.getUuid());
+                                s.setMemberlist(memberlist);
+                                if(Bukkit.getPlayer(skull.getOwner())!=null)Bukkit.getPlayer(skull.getOwner()).getPersistentDataContainer().remove(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"));
+                            } else {
+                                sp.setVoteckicks(kickvotes);
+                            }
                         }
+
+                        //reloaden
+                        Inventory gästeinv=Bukkit.createInventory(p,54,s.getName()+" > Mitglieder Verwalten");
+                        p.openInventory(gästeinv);
+                        return;
                     }
                 }
+
+                //keine siedlung aber online
+                Player gast=Bukkit.getPlayer(skull.getOwner());
+
+                //invite
+                p.sendMessage(ChatColor.GREEN+gast.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING)+ChatColor.DARK_GREEN+" wurde eingeladen");
+                TextComponent loc2=new TextComponent(ChatColor.DARK_GREEN+"Du wurdest als Volksmitglied eingeladen: "+ChatColor.GREEN+s.getName()+ChatColor.YELLOW+"[Click um begutachten]");
+                loc2.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/einladung"));
+                gast.sendMessage(loc2);
+                gast.getPersistentDataContainer().set(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER, siedlungsliste.indexOf(s));
+                Bukkit.getScheduler().runTaskLater(Siedlungundberufe.getPlugin(), () -> gast.getPersistentDataContainer().remove(new NamespacedKey(plugin, "einladung")), 20*60);
+
 
             } else if(e.getCurrentItem().getType().equals(Material.ARROW)){
                 Inventory spielerinv=Bukkit.createInventory(p,27,s.getName()+" > Spieler Verwalten");
@@ -176,52 +191,63 @@ public class siedlungsgui implements Listener {
             e.setCancelled(true);
             if(e.getCurrentItem()==null)return;
 
+            //skull
+            SkullMeta skull=(SkullMeta) e.getCurrentItem().getItemMeta();
+
             if(e.getCurrentItem().getType().equals(Material.PLAYER_HEAD)){
-                //getting the gast
-                SkullMeta skull=(SkullMeta) e.getCurrentItem().getItemMeta();
-                Player gast = (Player) Bukkit.getOfflinePlayer(skull.getOwner());
-                if(gast==null)return;
 
-                if(s.getOwner().contains(gast.getUniqueId().toString()) && s.getOwner().size()>1){
+                //is a owner
+                for(String ss : s.getOwner()){
+                    if(ss.equals(Bukkit.getOfflinePlayer(skull.getOwner()).getUniqueId().toString())) {
 
-                    int kickvotes=gast.getPersistentDataContainer().getOrDefault(new NamespacedKey(plugin, "kickvotes"), PersistentDataType.INTEGER,0);
+                        //get spielerprofil
+                        spielerprovil sp = spielerliste.get(0);
+                        for (spielerprovil sdp : spielerliste) if (sdp.getUuid().equals(ss)) sp = sdp;
 
-                    if(p.getPersistentDataContainer().has(new NamespacedKey(plugin, "kick"+gast.getName()), PersistentDataType.BOOLEAN)){
-                        if(kickvotes!=0)kickvotes--;
-                        p.getPersistentDataContainer().remove(new NamespacedKey(plugin, "kick"+gast.getName()));
-                    } else {
-                        kickvotes++;
-                        p.getPersistentDataContainer().set(new NamespacedKey(plugin, "kick"+gast.getName()), PersistentDataType.BOOLEAN,true);
+                        if (s.getOwner().size() > 2) {
+                            int kickvotes = sp.getVoteckicks();
+
+                            if (p.getPersistentDataContainer().has(new NamespacedKey(plugin, "kick" + skull.getOwner()), PersistentDataType.BOOLEAN)) {
+                                kickvotes--;
+                                p.getPersistentDataContainer().remove(new NamespacedKey(plugin, "kick" + skull.getOwner()));
+                            } else {
+                                kickvotes++;
+                                p.getPersistentDataContainer().set(new NamespacedKey(plugin, "kick" + skull.getOwner()), PersistentDataType.BOOLEAN, true);
+                            }
+
+                            if (s.getOwner().size() / 2.0 > kickvotes) {
+                                sp.setVoteckicks(0);
+                                //remove owner
+                                List<String> ownerlist = s.getOwner();
+                                ownerlist.remove(sp.getUuid());
+                                s.setOwner(ownerlist);
+
+                                //add to member
+                                List<String> memberlist = s.getMemberlist();
+                                memberlist.add(sp.getUuid());
+                                s.setMemberlist(memberlist);
+                            } else {
+                                sp.setVoteckicks(kickvotes);
+                            }
+                        }
+                        //reloaden
+                        Inventory gästeinv = Bukkit.createInventory(p, 54, s.getName() + " > Anführer Verwalten");
+                        p.openInventory(gästeinv);
+                        return;
                     }
-
-                    if(s.getOwner().size()/2.0<kickvotes){
-                        gast.getPersistentDataContainer().remove(new NamespacedKey(plugin, "kickvotes"));
-
-                        //remove owner
-                        List<String> ownerlist=s.getOwner();
-                        ownerlist.remove(gast.getUniqueId().toString());
-                        s.setOwner(ownerlist);
-
-                        //add to member
-                        List<String> memberlist=s.getMemberlist();
-                        memberlist.add(gast.getUniqueId().toString());
-                        s.setMemberlist(memberlist);
-                        gast.closeInventory();
-
-                    } else {
-                        gast.getPersistentDataContainer().set(new NamespacedKey(plugin, "kickvotes"), PersistentDataType.INTEGER,kickvotes);
-                        if(kickvotes==0)gast.getPersistentDataContainer().remove(new NamespacedKey(plugin, "kickvotes"));
-                    }
-                } else if(!s.getOwner().contains(gast.getUniqueId().toString())){
-                    List<String> ownerlist=s.getOwner();
-                    ownerlist.add(gast.getUniqueId().toString());
-                    s.setOwner(ownerlist);
-
-                    List<String> memberlist=s.getMemberlist();
-                    memberlist.remove(gast.getUniqueId().toString());
-                    s.setMemberlist(memberlist);
-                    gast.closeInventory();
                 }
+
+                //will be owner
+                spielerprovil sp = spielerliste.get(0);
+                for (spielerprovil sdp : spielerliste) if (sdp.getUuid().equals(Bukkit.getOfflinePlayer(skull.getOwner()).getUniqueId().toString())) sp = sdp;
+
+                List<String> ownerlist=s.getOwner();
+                ownerlist.add(sp.getUuid());
+                s.setOwner(ownerlist);
+
+                List<String> memberlist=s.getMemberlist();
+                memberlist.remove(sp.getUuid());
+                s.setMemberlist(memberlist);
 
             } else if(e.getCurrentItem().getType().equals(Material.ARROW)){
                 Inventory spielerinv=Bukkit.createInventory(p,27,s.getName()+" > Spieler Verwalten");
@@ -249,6 +275,8 @@ public class siedlungsgui implements Listener {
                     List<String> ownerlist=s.getMemberlist();
                     ownerlist.add(p.getUniqueId().toString());
                     s.setMemberlist(ownerlist);
+                    spielerliste.add(new spielerprovil(p.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING)
+                            ,p.getUniqueId().toString(),false,false,false,false,false, 0));
                     p.closeInventory();
                     break;
                 case RED_CONCRETE:
@@ -325,8 +353,8 @@ public class siedlungsgui implements Listener {
 
             switch (e.getCurrentItem().getType()){
                 case PLAYER_HEAD:
-                    Inventory infoinv=Bukkit.createInventory(p,54,Bukkit.getOfflinePlayer(e.getCurrentItem().getOw)+" > Einstellungen");
-                    p.openInventory(infoinv);
+                    //Inventory infoinv=Bukkit.createInventory(p,54,Bukkit.getOfflinePlayer(e.getCurrentItem().getOw)+" > Einstellungen");
+                    //p.openInventory(infoinv);
                     break;
                 case ARROW:
                     Inventory infoinv=Bukkit.createInventory(p,27,s.getName()+" > Informationen");

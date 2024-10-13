@@ -2,6 +2,7 @@ package me.marc3308.siedlungundberufe.GUI;
 
 import me.marc3308.siedlungundberufe.Siedlungundberufe;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
+import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -18,8 +19,8 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static me.marc3308.siedlungundberufe.Siedlungundberufe.plugin;
-import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
+import static me.marc3308.siedlungundberufe.Siedlungundberufe.*;
+import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
 import static me.marc3308.siedlungundberufe.utilitys.*;
 
 public class Verteilergui implements Listener {
@@ -191,7 +192,7 @@ public class Verteilergui implements Listener {
             for (int i=45;i<54;i++)inv.setItem(i,getItem("glass")); //bot
 
 
-            //Hinzufügen noch net gäste
+            //Hinzufügen noch net mitglieder
             for (Player neuzugang : Bukkit.getOnlinePlayers()){ //keine owner
                 if(!neuzugang.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER) && inasone(neuzugang.getLocation())==siedlungsliste.indexOf(s)){
                     //create player skull
@@ -206,17 +207,21 @@ public class Verteilergui implements Listener {
                 }
             }
 
-            //Hinzufügen der gäste
+            //Hinzufügen der mitglieder
             for (String ss : s.getMemberlist()){
-                Player mitglied= (Player) Bukkit.getOfflinePlayer(UUID.fromString(ss));
+
+                //get spielerprofil
+                spielerprovil sp=spielerliste.get(0);
+                for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(ss))sp=sdp;
+
                 //create player skull
                 ItemStack head=new ItemStack(Material.PLAYER_HEAD,1,(short) 3);
                 SkullMeta skull=(SkullMeta) head.getItemMeta();
-                skull.setDisplayName(mitglied.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING));
-                skull.setOwner(mitglied.getName().toString());
+                skull.setDisplayName(sp.getName());
+                skull.setOwner(Bukkit.getOfflinePlayer(ss).getName().toString());
                 beschreibung.clear();
-                if(mitglied.getPersistentDataContainer().has(new NamespacedKey(plugin, "kickvotes"))){
-                    beschreibung.add(ChatColor.YELLOW+"VoteKicks: "+mitglied.getPersistentDataContainer().get(new NamespacedKey(plugin, "kickvotes"),PersistentDataType.INTEGER));
+                if(sp.getVoteckicks()>0){
+                    beschreibung.add(ChatColor.YELLOW+"VoteKicks: "+sp.getVoteckicks());
                     skull.addEnchant(Enchantment.MENDING,1,false);
                     skull.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 }
@@ -251,29 +256,43 @@ public class Verteilergui implements Listener {
 
             //Mitglieder die owner werden können
             for (String ss : s.getMemberlist()){
-                Player mitglied= (Player) Bukkit.getOfflinePlayer(UUID.fromString(ss));
+
+                //get spielerprofil
+                spielerprovil sp=spielerliste.get(0);
+                for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(ss))sp=sdp;
+
                 //create player skull
                 ItemStack head=new ItemStack(Material.PLAYER_HEAD,1,(short) 3);
                 SkullMeta skull=(SkullMeta) head.getItemMeta();
-                skull.setDisplayName(mitglied.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING));
-                skull.setOwner(mitglied.getName().toString());
+                skull.setDisplayName(sp.getName());
+                skull.setOwner(Bukkit.getOfflinePlayer(ss).getName().toString());
+                beschreibung.clear();
+                if(sp.getVoteckicks()>0){
+                    beschreibung.add(ChatColor.YELLOW+"VoteKicks: "+sp.getVoteckicks());
+                    skull.addEnchant(Enchantment.MENDING,1,false);
+                    skull.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                }
+                skull.setLore(beschreibung);
                 head.setItemMeta(skull);
-                inv.setItem(hinzulist.get(0),head);
+                inv.setItem(rauslist.get(0),head);
                 hinzulist.remove(0);
                 if(hinzulist.isEmpty())break;
             }
 
             //Owner
             for (String ss : s.getOwner()){
-                Player mitglied= (Player) Bukkit.getOfflinePlayer(UUID.fromString(ss));
+                //get spielerprofil
+                spielerprovil sp=spielerliste.get(0);
+                for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(ss))sp=sdp;
+
                 //create player skull
                 ItemStack head=new ItemStack(Material.PLAYER_HEAD,1,(short) 3);
                 SkullMeta skull=(SkullMeta) head.getItemMeta();
-                skull.setDisplayName(mitglied.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING));
-                skull.setOwner(mitglied.getName().toString());
+                skull.setDisplayName(sp.getName());
+                skull.setOwner(Bukkit.getOfflinePlayer(ss).getName().toString());
                 beschreibung.clear();
-                if(mitglied.getPersistentDataContainer().has(new NamespacedKey(plugin, "kickvotes"))){
-                    beschreibung.add(ChatColor.YELLOW+"VoteKicks: "+mitglied.getPersistentDataContainer().get(new NamespacedKey(plugin, "kickvotes"),PersistentDataType.INTEGER));
+                if(sp.getVoteckicks()>0){
+                    beschreibung.add(ChatColor.YELLOW+"VoteKicks: "+sp.getVoteckicks());
                     skull.addEnchant(Enchantment.MENDING,1,false);
                     skull.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 }
@@ -320,24 +339,31 @@ public class Verteilergui implements Listener {
             Inventory wildinv=e.getInventory();
             //Owner
             for (String ss : s.getOwner()){
-                Player mitglied= (Player) Bukkit.getPlayer(UUID.fromString(ss));
+                //create player skull
+                spielerprovil sp=spielerliste.get(0);
+                for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(ss))sp=sdp;
+
                 //create player skull
                 ItemStack head=new ItemStack(Material.PLAYER_HEAD,1,(short) 3);
                 SkullMeta skull=(SkullMeta) head.getItemMeta();
-                skull.setDisplayName(mitglied.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING));
-                skull.setOwner(mitglied.getName().toString());
+                skull.setDisplayName(sp.getName());
+                skull.setOwner(Bukkit.getOfflinePlayer(ss).getName().toString());
                 head.setItemMeta(skull);
                 wildinv.setItem(wildinv.firstEmpty(),head);
             }
 
-            //Mitglieder die owner werden können
+            //Mitglieder
             for (String ss : s.getMemberlist()){
-                Player mitglied= (Player) Bukkit.getOfflinePlayer(UUID.fromString(ss));
+
+                //create player skull
+                spielerprovil sp=spielerliste.get(0);
+                for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(ss))sp=sdp;
+
                 //create player skull
                 ItemStack head=new ItemStack(Material.PLAYER_HEAD,1,(short) 3);
                 SkullMeta skull=(SkullMeta) head.getItemMeta();
-                skull.setDisplayName(mitglied.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING));
-                skull.setOwner(mitglied.getName().toString());
+                skull.setDisplayName(sp.getName());
+                skull.setOwner(Bukkit.getOfflinePlayer(ss).getName().toString());
                 head.setItemMeta(skull);
                 wildinv.setItem(wildinv.firstEmpty(),head);
             }

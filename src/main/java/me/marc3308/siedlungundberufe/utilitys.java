@@ -1,20 +1,13 @@
 package me.marc3308.siedlungundberufe;
 
+import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
-import org.bukkit.craftbukkit.v1_20_R1.persistence.CraftPersistentDataContainer;
-import net.minecraft.server.v1_20_R1.NBTTagCompound;
-import net.minecraft.server.v1_20_R1.MojangsonParser;
-import net.minecraft.server.v1_20_R1.EntityPlayer;
-import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
@@ -22,19 +15,14 @@ import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.persistence.PersistentDataType;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.UUID;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
+import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
 import static org.bukkit.Bukkit.getServer;
 
 public class utilitys {
@@ -43,7 +31,7 @@ public class utilitys {
         File file = new File("plugins/KMS Plugins/Siedlungundberufe","Siedlungen.yml");
         FileConfiguration con= YamlConfiguration.loadConfiguration(file);
 
-        //remove?
+        //remove
         for (int i=0;i<100;i++)con.set(String.valueOf(i),null);
 
         for (siedlung s : siedlungsliste){
@@ -66,6 +54,31 @@ public class utilitys {
         } catch (IOException i) {
             i.printStackTrace();
         }
+
+        file = new File("plugins/KMS Plugins/Siedlungundberufe","Spielerprofile.yml");
+        con= YamlConfiguration.loadConfiguration(file);
+
+        //remove
+        for (int i=0;i<100;i++)con.set(String.valueOf(i),null);
+
+        //save
+        for (spielerprovil s : spielerliste){
+            con.set(spielerliste.indexOf(s)+".Name",s.getName());
+            con.set(spielerliste.indexOf(s)+".uuid",s.getUuid());
+            con.set(spielerliste.indexOf(s)+".abbau",s.isAbbau());
+            con.set(spielerliste.indexOf(s)+".hinbau",s.isHinbau());
+            con.set(spielerliste.indexOf(s)+".kisten",s.isKisten());
+            con.set(spielerliste.indexOf(s)+".gaste",s.isGaste());
+        }
+
+
+        //final save
+        try {
+            con.save(file);
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+
     }
 
     public static int inasone(Location loc){
@@ -258,10 +271,10 @@ public class utilitys {
                 spielerinvo_meta.setDisplayName(ChatColor.WHITE+""+ChatColor.BOLD+"Mitglieder");
                 ArrayList<String> spielerinvo_beschreibung=new ArrayList<>();
                 spielerinvo_beschreibung.add(ChatColor.WHITE+"Anführer:");
-                for (String ss : s.getOwner())spielerinvo_beschreibung.add(ChatColor.WHITE+(Bukkit.getOfflinePlayer(UUID.fromString(ss))).getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING));
+                for (String ss : s.getOwner())for (spielerprovil sp : spielerliste)if(sp.getUuid().equals(ss))spielerinvo_beschreibung.add(ChatColor.WHITE+(sp.getName()));
                 if(!s.getMemberlist().isEmpty()){
                     spielerinvo_beschreibung.add(ChatColor.WHITE+"Mitglieder:");
-                    for (String ss : s.getMemberlist())spielerinvo_beschreibung.add(ChatColor.WHITE+((Player) Bukkit.getOfflinePlayer(UUID.fromString(ss))).getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING));
+                    for (String ss : s.getMemberlist())for (spielerprovil sp : spielerliste)if(sp.getUuid().equals(ss))spielerinvo_beschreibung.add(ChatColor.WHITE+(sp.getName()));
                 }
                 spielerinvo_meta.setLore(spielerinvo_beschreibung);
                 spielerinvo.setItemMeta(spielerinvo_meta);

@@ -3,6 +3,7 @@ package me.marc3308.siedlungundberufe.commands.subcommands;
 import me.marc3308.siedlungundberufe.Siedlungundberufe;
 import me.marc3308.siedlungundberufe.commands.subcommand;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
+import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
+import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
 import static me.marc3308.siedlungundberufe.utilitys.savesiedlungen;
 
 public class editcommand extends subcommand {
@@ -56,11 +58,22 @@ public class editcommand extends subcommand {
                         List<String> ownerlist=s.getOwner();
                         ownerlist.add(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString());
                         s.setOwner(ownerlist);
+
+                        spielerprovil sp=spielerliste.get(0);
+                        for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString()))sp=sdp;
+                        sp.setRules(true);
+                        sp.setVoteckicks(0);
                         p.sendMessage(ChatColor.GREEN+args[4]+" wurde erfolgreich geaddet");
                     } else {
                         List<String> ownerlist=s.getOwner();
                         ownerlist.remove(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString());
                         s.setOwner(ownerlist);
+
+                        spielerprovil sp=spielerliste.get(0);
+                        for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString()))sp=sdp;
+                        sp.setRules(false);
+                        sp.setGaste(false);
+                        sp.setVoteckicks(0);
                         p.sendMessage(ChatColor.GREEN+args[4]+" wurde erfolgreich rausgescmissen");
                     }
 
@@ -71,6 +84,16 @@ public class editcommand extends subcommand {
                         p.sendMessage(ChatColor.RED+"Dieser Spieler Existiert nicht");
                         return;
                     }
+
+                    spielerprovil sp=spielerliste.get(0);
+                    for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString()))sp=sdp;
+                    sp.setAbbau(false);
+                    sp.setHinbau(false);
+                    sp.setKisten(false);
+                    sp.setGaste(false);
+                    sp.setRules(false);
+                    sp.setVoteckicks(0);
+
                     if(args[3].equals("add")){
                         List<String> ownerlist=s.getMemberlist();
                         ownerlist.add(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString());

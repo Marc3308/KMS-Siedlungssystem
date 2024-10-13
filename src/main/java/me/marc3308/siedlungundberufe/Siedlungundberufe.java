@@ -10,6 +10,7 @@ import me.marc3308.siedlungundberufe.commands.einladungen;
 import me.marc3308.siedlungundberufe.commands.loadsiedlung;
 import me.marc3308.siedlungundberufe.commands.savecommand;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
+import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -27,6 +28,7 @@ import static me.marc3308.siedlungundberufe.utilitys.savesiedlungen;
 public final class Siedlungundberufe extends JavaPlugin {
 
     public static ArrayList<siedlung> siedlungsliste=new ArrayList<>();
+    public static ArrayList<spielerprovil> spielerliste=new ArrayList<>();
 
     public static Siedlungundberufe plugin;
     @Override
@@ -78,6 +80,24 @@ public final class Siedlungundberufe extends JavaPlugin {
                     ,con.getString(i+".wilkommen")
                     ,con.getString(i+".verlassen")));
         }
+
+        File file2 = new File("plugins/KMS Plugins/Siedlungundberufe","Spielerprofile.yml");
+        FileConfiguration con2= YamlConfiguration.loadConfiguration(file2);
+
+        //load spieler from yml
+        for (int i = 0; i < 300; i++) {
+            if(con2.get(i+".Name")==null)break;
+            spielerliste.add(new spielerprovil(
+                    con2.getString(i+".Name")
+                    ,con2.getString(i+".uuid")
+                    ,con2.getBoolean(i+".abbau")
+                    ,con2.getBoolean(i+".hinbau")
+                    ,con2.getBoolean(i+".kisten")
+                    ,con2.getBoolean(i+".gaste")
+                    ,con2.getBoolean(i+".rules")
+                    ,con2.getInt(i+".voteckicks")));
+        }
+
 
         //commands
         getCommand("savesiedlungen").setExecutor(new savecommand());

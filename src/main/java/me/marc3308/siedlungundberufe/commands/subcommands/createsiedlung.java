@@ -3,6 +3,7 @@ package me.marc3308.siedlungundberufe.commands.subcommands;
 import me.marc3308.siedlungundberufe.Siedlungundberufe;
 import me.marc3308.siedlungundberufe.commands.subcommand;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
+import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,6 +14,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.ArrayList;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
+import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
 import static me.marc3308.siedlungundberufe.utilitys.savesiedlungen;
 
 public class createsiedlung extends subcommand {
@@ -55,6 +57,7 @@ public class createsiedlung extends subcommand {
             ArrayList<String> ownerliste =new ArrayList<>();
             ownerliste.add(pp.getUniqueId().toString());
             siedlungsliste.add(new siedlung(ownerliste,loc1,loc2,name,"",200,"DIAMOND",new ArrayList<String>(),0,"",""));
+            spielerliste.add(new spielerprovil(name,pp.getUniqueId().toString(),true,true,true,true,true,0));
             pp.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER,(siedlungsliste.size()-1));
             savesiedlungen();
 
