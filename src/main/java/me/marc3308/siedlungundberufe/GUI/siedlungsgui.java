@@ -268,6 +268,9 @@ public class siedlungsgui implements Listener {
                         ownerlist.add(sp.getUuid());
                         s.setOwner(ownerlist);
 
+                        sp.setAbbau(true);
+                        sp.setHinbau(true);
+                        sp.setKisten(true);
                         sp.setGaste(true);
                         sp.setRules(true);
                         sp.setMitglied(true);
