@@ -135,6 +135,7 @@ public class siedlungsgui implements Listener {
 
                         //only owner
                         if(!s.getOwner().contains(p.getUniqueId().toString()))return;
+                        if(s.getStufe()==1 && s.getMemberlist().size()<4)return; //so that you dont kick wehn s1 and 4min
 
                         //get spielerprofil
                         spielerprovil sp=spielerliste.get(0);

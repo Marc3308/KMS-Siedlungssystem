@@ -285,7 +285,6 @@ public class utilitys {
                 ArrayList<String> spielerinvo_beschreibung=new ArrayList<>();
                 spielerinvo_beschreibung.add(ChatColor.GRAY+"Anführer: "+s.getOwner().size());
                 spielerinvo_beschreibung.add(ChatColor.WHITE+"Mitglieder: "+s.getMemberlist().size());
-
                 int i=0;
                 for (Player gast : Bukkit.getOnlinePlayers())if(gast.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"gast"), PersistentDataType.BOOLEAN))i++;
                 spielerinvo_beschreibung.add(ChatColor.GREEN+"Gäste: "+i);

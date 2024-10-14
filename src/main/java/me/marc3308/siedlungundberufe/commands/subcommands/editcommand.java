@@ -122,6 +122,15 @@ public class editcommand extends subcommand {
                         p.sendMessage(ChatColor.RED+error);
                         return;
                     }
+
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "dmarker deletearea " + Bukkit.getOfflinePlayer(args[1]).getName());
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"dmarker addcorner "+args[3]+" 0 "+args[4]+" world");
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"dmarker addcorner "+args[3]+" 0 "+s.getLoc2().getBlockZ()+" world");
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"dmarker addcorner "+s.getLoc2().getBlockX()+" 0 "+args[4]+" world");
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"dmarker addcorner "+s.getLoc2().getBlockX()+" 0 "+s.getLoc2().getBlockZ()+" world");
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"dmarker addarea "+Bukkit.getOfflinePlayer(args[1]).getName());
+
+
                     Location loc=new Location(p.getWorld(),Integer.valueOf(args[3]),0,Integer.valueOf(args[4]));
                     s.setLoc1(loc);
                     p.sendMessage(ChatColor.GREEN+"Der Neue Eckpunkt 1 von "+s.getName()+" ist "+args[3]+" "+args[4]);
@@ -131,6 +140,14 @@ public class editcommand extends subcommand {
                         p.sendMessage(ChatColor.RED+error);
                         return;
                     }
+
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "dmarker deletearea " + Bukkit.getOfflinePlayer(args[1]).getName());
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"dmarker addcorner "+args[3]+" 0 "+args[4]+" world");
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"dmarker addcorner "+args[3]+" 0 "+s.getLoc1().getBlockZ()+" world");
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"dmarker addcorner "+s.getLoc1().getBlockX()+" 0 "+args[4]+" world");
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"dmarker addcorner "+s.getLoc1().getBlockX()+" 0 "+s.getLoc1().getBlockZ()+" world");
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"dmarker addarea "+Bukkit.getOfflinePlayer(args[1]).getName());
+
                     Location loc2=new Location(p.getWorld(),Integer.valueOf(args[3]),0,Integer.valueOf(args[4]));
                     s.setLoc2(loc2);
                     p.sendMessage(ChatColor.GREEN+"Der Neue Eckpunkt 2 von "+s.getName()+" ist "+args[3]+" "+args[4]);
