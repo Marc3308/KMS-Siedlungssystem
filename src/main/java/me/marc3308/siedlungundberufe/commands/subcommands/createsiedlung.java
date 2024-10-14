@@ -74,7 +74,7 @@ public class createsiedlung extends subcommand {
 
             //if already init
             for (spielerprovil sp : spielerliste){
-                if(sp.getUuid().equals(p.getUniqueId().toString())){
+                if(sp.getUuid().equals(pp.getUniqueId().toString())){
                     sp.setAbbau(true);
                     sp.setHinbau(true);
                     sp.setKisten(true);
@@ -82,7 +82,7 @@ public class createsiedlung extends subcommand {
                     sp.setMitglied(true);
                     sp.setRules(true);
                     sp.setVoteckicks(new ArrayList<>());
-                    p.closeInventory();
+                    pp.closeInventory();
                     return;
                 }
             }

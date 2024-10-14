@@ -40,7 +40,7 @@ public class infocommand extends subcommand {
         }
 
         siedlung s=siedlungsliste.get(0);
-        for (siedlung ss : siedlungsliste)if(ss.getOwner().equals(Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString()))s=ss;
+        for (siedlung ss : siedlungsliste)for (String sss : s.getOwner())if(sss.equals(Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString()))s=ss;
 
         ArrayList<String> owner=new ArrayList<>();
         for (String ss : s.getOwner())for (spielerprovil sp : spielerliste) if(sp.getUuid().equals(ss))owner.add(sp.getName());
