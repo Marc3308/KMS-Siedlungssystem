@@ -12,7 +12,9 @@ import me.marc3308.siedlungundberufe.commands.savecommand;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
 import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -21,6 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static me.marc3308.siedlungundberufe.utilitys.inasone;
 import static me.marc3308.siedlungundberufe.utilitys.savesiedlungen;
@@ -29,6 +32,7 @@ public final class Siedlungundberufe extends JavaPlugin {
 
     public static ArrayList<siedlung> siedlungsliste=new ArrayList<>();
     public static ArrayList<spielerprovil> spielerliste=new ArrayList<>();
+    public static HashMap<Location, BlockData> kapputblockliste=new HashMap<>();
 
     public static Siedlungundberufe plugin;
     @Override
@@ -43,17 +47,18 @@ public final class Siedlungundberufe extends JavaPlugin {
 
                 //check if in a sone with cool new stream funktion
                 for(Player p : Bukkit.getOnlinePlayers()){
+                    if(!siedlungsliste.isEmpty()){
+                        //check if player is in a sone
+                        int sone=inasone(p.getLocation());
 
-                    //check if player is in a sone
-                    int sone=inasone(p.getLocation());
-
-                    //send massage
-                    if(!p.getPersistentDataContainer().has(new NamespacedKey(plugin, "insone"), PersistentDataType.INTEGER) && sone>=0){
-                        p.getPersistentDataContainer().set(new NamespacedKey(plugin, "insone"), PersistentDataType.INTEGER,sone);
-                        p.sendTitle(siedlungsliste.get(sone).getWelckomemasage(),"");
-                    } else if (p.getPersistentDataContainer().has(new NamespacedKey(plugin, "insone"), PersistentDataType.INTEGER) && sone<0) {
-                        p.sendTitle(siedlungsliste.get(p.getPersistentDataContainer().get(new NamespacedKey(plugin, "insone"), PersistentDataType.INTEGER)).getLeavemessage(),"");
-                        p.getPersistentDataContainer().remove(new NamespacedKey(plugin, "insone"));
+                        //send massage
+                        if(!p.getPersistentDataContainer().has(new NamespacedKey(plugin, "insone"), PersistentDataType.INTEGER) && sone>=0){
+                            p.getPersistentDataContainer().set(new NamespacedKey(plugin, "insone"), PersistentDataType.INTEGER,sone);
+                            p.sendTitle(siedlungsliste.get(sone).getWelckomemasage(),"");
+                        } else if (p.getPersistentDataContainer().has(new NamespacedKey(plugin, "insone"), PersistentDataType.INTEGER) && sone<0) {
+                            p.sendTitle(siedlungsliste.get(p.getPersistentDataContainer().get(new NamespacedKey(plugin, "insone"), PersistentDataType.INTEGER)).getLeavemessage(),"");
+                            p.getPersistentDataContainer().remove(new NamespacedKey(plugin, "insone"));
+                        }
                     }
                 }
             }
@@ -95,7 +100,8 @@ public final class Siedlungundberufe extends JavaPlugin {
                     ,con2.getBoolean(i+".kisten")
                     ,con2.getBoolean(i+".gaste")
                     ,con2.getBoolean(i+".rules")
-                    ,con2.getInt(i+".voteckicks")));
+                    ,con2.getBoolean(i+".mitglied")
+                    ,con2.getStringList(i+".voteckicks")));
         }
 
 
@@ -119,6 +125,7 @@ public final class Siedlungundberufe extends JavaPlugin {
     @Override
     public void onDisable() {
         savesiedlungen();
+        for (Location loc : kapputblockliste.keySet())Bukkit.getWorld("world").setBlockData(loc,kapputblockliste.get(loc));
     }
 
     public static Siedlungundberufe getPlugin() {

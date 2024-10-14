@@ -1,28 +1,27 @@
 package me.marc3308.siedlungundberufe.Siedlungsevents.spielerevents;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Effect;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import me.marc3308.siedlungundberufe.Siedlungundberufe;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Random;
 
-import static me.marc3308.siedlungundberufe.utilitys.darferdas;
+import static me.marc3308.siedlungundberufe.Siedlungundberufe.kapputblockliste;
+import static me.marc3308.siedlungundberufe.utilitys.*;
 
 public class blockevents implements Listener {
 
-    public static ArrayList<Material> blockliste=new ArrayList<>();
+    private static ArrayList<Material> blockliste=new ArrayList<>();
+    private static ArrayList<Material> spizhackenlist=new ArrayList<>();
+
+    private static String error=ChatColor.RED+""+ChatColor.BOLD+"WARNUNG"+ChatColor.RESET+""+ChatColor.GRAY+" Du hast hier keine Berichtung für diese Aktion.";
 
     public blockevents(){
         blockliste.add(Material.CHEST);
@@ -33,54 +32,98 @@ public class blockevents implements Listener {
         blockliste.add(Material.CHIPPED_ANVIL);
         blockliste.add(Material.DAMAGED_ANVIL);
         blockliste.add(Material.ENCHANTING_TABLE);
+        blockliste.add(Material.BARREL);
+        blockliste.add(Material.FURNACE);
+        blockliste.add(Material.FURNACE_MINECART);
+        blockliste.add(Material.BLAST_FURNACE);
+        blockliste.add(Material.SMOKER);
+        blockliste.add(Material.PLAYER_WALL_HEAD);
+        blockliste.add(Material.PLAYER_HEAD);
+
+
+        spizhackenlist.add(Material.WOODEN_PICKAXE);
+        spizhackenlist.add(Material.STONE_PICKAXE);
+        spizhackenlist.add(Material.IRON_PICKAXE);
+        spizhackenlist.add(Material.DIAMOND_PICKAXE);
+
+        spizhackenlist.add(Material.WOODEN_SHOVEL);
+        spizhackenlist.add(Material.STONE_SHOVEL);
+        spizhackenlist.add(Material.IRON_SHOVEL);
+        spizhackenlist.add(Material.DIAMOND_SHOVEL);
+
+        spizhackenlist.add(Material.WOODEN_AXE);
+        spizhackenlist.add(Material.STONE_AXE);
+        spizhackenlist.add(Material.IRON_AXE);
+        spizhackenlist.add(Material.DIAMOND_AXE);
+
+        spizhackenlist.add(Material.WOODEN_HOE);
+        spizhackenlist.add(Material.STONE_HOE);
+        spizhackenlist.add(Material.IRON_HOE);
+        spizhackenlist.add(Material.DIAMOND_HOE);
     }
 
     @EventHandler
     public void onbreak(BlockBreakEvent e){
         Player p=e.getPlayer();
-        if(darferdas(p,e.getBlock().getLocation()))return;
-        e.setCancelled(true);
+        if(darferdas(p,e.getBlock().getLocation(), "abbaun"))return;
+        if(!spizhackenlist.contains(p.getInventory().getItemInMainHand().getType()) || blockliste.contains(e.getBlock().getType())){
+            e.setCancelled(true);
+            //warnung an den spieler
+            p.playSound(p, Sound.BLOCK_LAVA_EXTINGUISH,1,1);
+            p.playEffect(e.getBlock().getLocation().add(0,1,0), Effect.EXTINGUISH,20);
+            p.sendMessage(error);
+            return;
+        }
 
-        //warnung an den spieler
-        p.playSound(p, Sound.BLOCK_LAVA_EXTINGUISH,1,1);
-        p.playEffect(e.getBlock().getLocation(), Effect.EXTINGUISH,20);
-        p.sendMessage(ChatColor.RED+""+ChatColor.BOLD+"WARNUNG"+ChatColor.RESET+""+ChatColor.GRAY+" du bist weder ein mitglied noch ein gast in diesem gebiet");
+        kapputblockliste.put(e.getBlock().getLocation(), e.getBlock().getBlockData());
+        e.setDropItems(false);
+        Bukkit.getScheduler().runTaskLater(Siedlungundberufe.getPlugin(), () -> p.getWorld().setBlockData(e.getBlock().getLocation(),kapputblockliste.get(e.getBlock().getLocation())), 20*30);
+        Bukkit.getScheduler().runTaskLater(Siedlungundberufe.getPlugin(), () -> kapputblockliste.remove(e.getBlock().getLocation()), 20*30);
+
 
     }
 
     @EventHandler
     public void onblockplace(BlockPlaceEvent e){
         Player p=e.getPlayer();
-        if(darferdas(p,e.getBlock().getLocation()))return;
+        if(darferdas(p,e.getBlock().getLocation(), "hinbaun")){
+            if(kapputblockliste.containsKey(e.getBlock().getLocation())){
+                e.setCancelled(true);
+                p.playSound(p, Sound.BLOCK_LAVA_EXTINGUISH,1,1);
+                p.playEffect(e.getBlock().getLocation().add(0,1,0), Effect.EXTINGUISH,20);
+                p.sendMessage(ChatColor.GRAY+" Das kannst du derzeit leider nicht tun");
+            }
+            return;
+        }
         e.setCancelled(true);
 
         //warnung an den spieler
         p.playSound(p, Sound.BLOCK_LAVA_EXTINGUISH,1,1);
-        p.playEffect(e.getBlock().getLocation(), Effect.EXTINGUISH,20);
-        p.sendMessage(ChatColor.RED+""+ChatColor.BOLD+"WARNUNG"+ChatColor.RESET+""+ChatColor.GRAY+" du bist weder ein mitglied noch ein gast in diesem gebiet");
+        p.playEffect(e.getBlock().getLocation().add(0,1,0), Effect.EXTINGUISH,20);
+        p.sendMessage(error);
     }
 
     @EventHandler
-    public void onknopf(InventoryOpenEvent e){
-        Player p= (Player) e.getPlayer();
-        if(darferdas(p,p.getLocation()))return;
+    public void onknopf(InventoryClickEvent e){
+        Player p= (Player) e.getWhoClicked();
+        if(darferdas(p,p.getLocation(), "kisten"))return;
         if(e.getInventory().getType().equals(InventoryType.CHEST) && !e.getView().getTitle().equals("Chest") && !e.getView().getTitle().equals("Large Chest"))return; //if it is  acustem inv
         e.setCancelled(true);
 
         //warnung an den spieler
         p.playSound(p, Sound.BLOCK_LAVA_EXTINGUISH,1,1);
-        p.sendMessage(ChatColor.RED+""+ChatColor.BOLD+"WARNUNG"+ChatColor.RESET+""+ChatColor.GRAY+" du bist weder ein mitglied noch ein gast in diesem gebiet");
+        p.sendMessage(error);
     }
 
     @EventHandler
     public void oneimer(PlayerBucketEmptyEvent e){
         Player p=e.getPlayer();
-        if(darferdas(p,e.getBlock().getLocation()))return;
+        if(darferdas(p,e.getBlock().getLocation(), "abbaun"))return;
         e.setCancelled(true);
 
         //warnung an den spieler
         p.playSound(p, Sound.BLOCK_LAVA_EXTINGUISH,1,1);
         p.playEffect(e.getBlock().getLocation(), Effect.EXTINGUISH,20);
-        p.sendMessage(ChatColor.RED+""+ChatColor.BOLD+"WARNUNG"+ChatColor.RESET+""+ChatColor.GRAY+" du bist weder ein mitglied noch ein gast in diesem gebiet");
+        p.sendMessage(error);
     }
 }

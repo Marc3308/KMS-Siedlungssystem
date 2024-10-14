@@ -26,6 +26,7 @@ public class helpcommand extends subcommand {
         p.sendMessage(ChatColor.DARK_GREEN+"----------------------------------------------------");
         p.sendMessage("/siedlung create <Besitzer> <loc1-x> <loc1-z> <loc2-x> <loc2-z>");
         p.sendMessage("/siedlung edit <siedlung> <art> <neuerwert>");
+        p.sendMessage("/siedlung open <siedlung>");
         p.sendMessage("/siedlung delete <siedlung>");
         p.sendMessage("/siedlung info <siedlung>");
         p.sendMessage(ChatColor.DARK_GREEN+"----------------------------------------------------");

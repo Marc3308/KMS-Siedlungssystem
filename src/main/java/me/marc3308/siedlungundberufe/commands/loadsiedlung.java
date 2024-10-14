@@ -59,7 +59,8 @@ public class loadsiedlung implements CommandExecutor {
                     ,con2.getBoolean(i+".kisten")
                     ,con2.getBoolean(i+".gaste")
                     ,con2.getBoolean(i+".rules")
-                    ,con2.getInt(i+".voteckicks")));
+                    ,con2.getBoolean(i+".mitglied")
+                    ,con2.getStringList(i+".voteckicks")));
         }
 
             System.out.println(ChatColor.GREEN+"Siedlungen wurden geladen");

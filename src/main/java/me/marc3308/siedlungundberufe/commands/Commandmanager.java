@@ -23,6 +23,7 @@ public class Commandmanager implements CommandExecutor , TabCompleter {
         subcommands.add(new editcommand());
         subcommands.add(new deletecommand());
         subcommands.add(new infocommand());
+        subcommands.add(new opencommand());
     }
 
     @Override
@@ -47,6 +48,10 @@ public class Commandmanager implements CommandExecutor , TabCompleter {
                     break;
                 case "info":
                     getSubcommands().get(4).perform(p,args);
+                    break;
+                case "open":
+                    getSubcommands().get(5).perform(p,args);
+
                     break;
                 default:
                     getSubcommands().get(0).perform(p,args);

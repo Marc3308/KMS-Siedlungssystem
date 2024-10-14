@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.*;
-import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
 import static me.marc3308.siedlungundberufe.utilitys.*;
 
 public class Verteilergui implements Listener {
@@ -73,11 +72,6 @@ public class Verteilergui implements Listener {
         //die warteshlange
         if(e.getView().getTitle().equalsIgnoreCase("Siedlungswarteschlange    ")){
 
-            if(!s.getOwner().contains(p.getUniqueId().toString())){
-                Bukkit.getScheduler().runTaskLater(Siedlungundberufe.getPlugin(), () -> Bukkit.getServer().dispatchCommand(p,"profil"), 1L);
-                return;
-            }
-
             switch (s.getStufe()){
                 case 0:
                     //create inventory
@@ -115,7 +109,7 @@ public class Verteilergui implements Listener {
         }
 
         //spielergui
-        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Spieler Verwalten")){
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Spieler verwalten")){
 
             Inventory inv=e.getInventory();
             inv.setItem(11,getItem("owner"));
@@ -126,7 +120,7 @@ public class Verteilergui implements Listener {
         }
 
         //gäste gui
-        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Gäste Verwalten")){
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Gäste verwalten")){
 
             Inventory inv=e.getInventory();
 
@@ -180,7 +174,7 @@ public class Verteilergui implements Listener {
         }
 
         //Mitglieder gui
-        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Mitglieder Verwalten")){
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Mitglieder verwalten")){
 
             Inventory inv=e.getInventory();
 
@@ -211,17 +205,16 @@ public class Verteilergui implements Listener {
             for (String ss : s.getMemberlist()){
 
                 //get spielerprofil
-                spielerprovil sp=spielerliste.get(0);
-                for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(ss))sp=sdp;
+                spielerprovil sp =getSpielerprovile(ss);
 
                 //create player skull
                 ItemStack head=new ItemStack(Material.PLAYER_HEAD,1,(short) 3);
                 SkullMeta skull=(SkullMeta) head.getItemMeta();
                 skull.setDisplayName(sp.getName());
-                skull.setOwner(Bukkit.getOfflinePlayer(ss).getName().toString());
+                skull.setOwner(Bukkit.getOfflinePlayer(UUID.fromString(ss)).getName().toString());
                 beschreibung.clear();
-                if(sp.getVoteckicks()>0){
-                    beschreibung.add(ChatColor.YELLOW+"VoteKicks: "+sp.getVoteckicks());
+                if(!sp.getVoteckicks().isEmpty()){
+                    beschreibung.add(ChatColor.YELLOW+"VoteKicks: "+sp.getVoteckicks().size());
                     skull.addEnchant(Enchantment.MENDING,1,false);
                     skull.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 }
@@ -242,7 +235,7 @@ public class Verteilergui implements Listener {
         }
 
         //Owner gui
-        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Anführer Verwalten")){
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Anführer verwalten")){
 
             Inventory inv=e.getInventory();
 
@@ -258,41 +251,40 @@ public class Verteilergui implements Listener {
             for (String ss : s.getMemberlist()){
 
                 //get spielerprofil
-                spielerprovil sp=spielerliste.get(0);
-                for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(ss))sp=sdp;
+                spielerprovil sp =getSpielerprovile(ss);
 
                 //create player skull
                 ItemStack head=new ItemStack(Material.PLAYER_HEAD,1,(short) 3);
                 SkullMeta skull=(SkullMeta) head.getItemMeta();
                 skull.setDisplayName(sp.getName());
-                skull.setOwner(Bukkit.getOfflinePlayer(ss).getName().toString());
+                skull.setOwner(Bukkit.getOfflinePlayer(UUID.fromString(ss)).getName().toString());
                 beschreibung.clear();
-                if(sp.getVoteckicks()>0){
-                    beschreibung.add(ChatColor.YELLOW+"VoteKicks: "+sp.getVoteckicks());
+                if(!sp.getVoteckicks().isEmpty()){
+                    beschreibung.add(ChatColor.YELLOW+"Votes: "+sp.getVoteckicks().size());
                     skull.addEnchant(Enchantment.MENDING,1,false);
                     skull.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 }
                 skull.setLore(beschreibung);
                 head.setItemMeta(skull);
-                inv.setItem(rauslist.get(0),head);
+                inv.setItem(hinzulist.get(0),head);
                 hinzulist.remove(0);
                 if(hinzulist.isEmpty())break;
             }
 
             //Owner
             for (String ss : s.getOwner()){
+
                 //get spielerprofil
-                spielerprovil sp=spielerliste.get(0);
-                for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(ss))sp=sdp;
+                spielerprovil sp =getSpielerprovile(ss);
 
                 //create player skull
                 ItemStack head=new ItemStack(Material.PLAYER_HEAD,1,(short) 3);
                 SkullMeta skull=(SkullMeta) head.getItemMeta();
                 skull.setDisplayName(sp.getName());
-                skull.setOwner(Bukkit.getOfflinePlayer(ss).getName().toString());
+                skull.setOwner(Bukkit.getOfflinePlayer(UUID.fromString(ss)).getName().toString());
                 beschreibung.clear();
-                if(sp.getVoteckicks()>0){
-                    beschreibung.add(ChatColor.YELLOW+"VoteKicks: "+sp.getVoteckicks());
+                if(!sp.getVoteckicks().isEmpty()){
+                    beschreibung.add(ChatColor.YELLOW+"VoteKicks: "+sp.getVoteckicks().size());
                     skull.addEnchant(Enchantment.MENDING,1,false);
                     skull.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 }
@@ -317,7 +309,7 @@ public class Verteilergui implements Listener {
 
             Inventory inv=e.getInventory();
 
-            inv.setItem(12,getItem("einladungplus"));
+            inv.setItem(12,getInvoBlock("einladungplus",siedlungsliste.get(p.getPersistentDataContainer().get(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER))));
             inv.setItem(14,getItem("einladungminus"));
             inv.setItem(26,getItem("pfeil"));
 
@@ -334,20 +326,22 @@ public class Verteilergui implements Listener {
 
         }
 
-        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > SpielerInvormationen")){
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Spielerinformationen")){
 
             Inventory wildinv=e.getInventory();
             //Owner
             for (String ss : s.getOwner()){
                 //create player skull
-                spielerprovil sp=spielerliste.get(0);
-                for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(ss))sp=sdp;
+                spielerprovil sp =getSpielerprovile(ss);
 
                 //create player skull
                 ItemStack head=new ItemStack(Material.PLAYER_HEAD,1,(short) 3);
                 SkullMeta skull=(SkullMeta) head.getItemMeta();
-                skull.setDisplayName(sp.getName());
-                skull.setOwner(Bukkit.getOfflinePlayer(ss).getName().toString());
+                skull.setDisplayName(ChatColor.GRAY+sp.getName());
+                skull.setOwner(Bukkit.getOfflinePlayer(UUID.fromString(ss)).getName().toString());
+                beschreibung.clear();
+                beschreibung.add(ChatColor.GRAY+"Anführer");
+                skull.setLore(beschreibung);
                 head.setItemMeta(skull);
                 wildinv.setItem(wildinv.firstEmpty(),head);
             }
@@ -356,20 +350,82 @@ public class Verteilergui implements Listener {
             for (String ss : s.getMemberlist()){
 
                 //create player skull
-                spielerprovil sp=spielerliste.get(0);
-                for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(ss))sp=sdp;
+                spielerprovil sp =getSpielerprovile(ss);
 
                 //create player skull
                 ItemStack head=new ItemStack(Material.PLAYER_HEAD,1,(short) 3);
                 SkullMeta skull=(SkullMeta) head.getItemMeta();
-                skull.setDisplayName(sp.getName());
-                skull.setOwner(Bukkit.getOfflinePlayer(ss).getName().toString());
+                skull.setDisplayName(ChatColor.WHITE+sp.getName());
+                skull.setOwner(Bukkit.getOfflinePlayer(UUID.fromString(ss)).getName().toString());
+                beschreibung.clear();
+                beschreibung.add(ChatColor.WHITE+"Mitglied");
+                skull.setLore(beschreibung);
                 head.setItemMeta(skull);
                 wildinv.setItem(wildinv.firstEmpty(),head);
             }
 
+            //Hinzufügen der gäste
+            for (Player gast : Bukkit.getOnlinePlayers()){
+                if(gast.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"gast"), PersistentDataType.BOOLEAN)){
+                    //create player skull
+                    ItemStack head=new ItemStack(Material.PLAYER_HEAD,1,(short) 3);
+                    SkullMeta skull=(SkullMeta) head.getItemMeta();
+                    skull.setDisplayName(ChatColor.GREEN+gast.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING));
+                    skull.setOwner(gast.getName().toString());
+                    beschreibung.clear();
+                    beschreibung.add(ChatColor.GREEN+"Gast");
+                    skull.setLore(beschreibung);
+                    head.setItemMeta(skull);
+                    wildinv.setItem(wildinv.firstEmpty(),head);
+                    rauslist.remove(0);
+                }
+            }
+
             wildinv.setItem(53,getItem("pfeil"));
         }
+
+
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Spielerinformationen > Einstellungen")){
+            Inventory inv = e.getInventory();
+            spielerprovil sp = getSpielerprovile(Bukkit.getOfflinePlayer(((SkullMeta) inv.getItem(0).getItemMeta()).getOwner()).getUniqueId().toString());
+
+            inv.setItem(11,getRuleItem("Abbauen"));
+            inv.setItem(12,sp.isAbbau() ? getRuleItem("Erlaubt") : getRuleItem("Verwehrt"));
+
+            inv.setItem(20,getRuleItem("Platzieren"));
+            inv.setItem(21,sp.isHinbau() ? getRuleItem("Erlaubt") : getRuleItem("Verwehrt"));
+
+            inv.setItem(29,getRuleItem("Looten"));
+            inv.setItem(30,sp.isKisten() ? getRuleItem("Erlaubt") : getRuleItem("Verwehrt"));
+
+            inv.setItem(14,getRuleItem("Gaste"));
+            inv.setItem(15,sp.isGaste() ? getRuleItem("Erlaubt") : getRuleItem("Verwehrt"));
+
+            inv.setItem(23,getRuleItem("Mitglieder"));
+            inv.setItem(24,sp.isMitglied() ? getRuleItem("Erlaubt") : getRuleItem("Verwehrt"));
+
+            inv.setItem(32,getRuleItem("Regeln"));
+            inv.setItem(33,sp.isRules() ? getRuleItem("Erlaubt") : getRuleItem("Verwehrt"));
+
+            inv.setItem(44,getItem("pfeil"));
+        }
+
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Gäste > Einstellungen")){
+            Inventory inv = e.getInventory();
+            Player gast=isGast(((SkullMeta) e.getInventory().getItem(0).getItemMeta()).getOwner(),siedlungsliste.indexOf(s));
+
+            inv.setItem(2,getRuleItem("Abbauen"));
+            inv.setItem(11,gast.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"abbaun"), PersistentDataType.BOOLEAN) ? getRuleItem("Erlaubt") : getRuleItem("Verwehrt"));
+
+            inv.setItem(4,getRuleItem("Platzieren"));
+            inv.setItem(13,gast.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"hinbaun"), PersistentDataType.BOOLEAN) ? getRuleItem("Erlaubt") : getRuleItem("Verwehrt"));
+
+            inv.setItem(6,getRuleItem("Looten"));
+            inv.setItem(15,gast.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"kisten"), PersistentDataType.BOOLEAN) ? getRuleItem("Erlaubt") : getRuleItem("Verwehrt"));
+
+            inv.setItem(26,getItem("pfeil"));
+        }
+
     }
 
     @EventHandler

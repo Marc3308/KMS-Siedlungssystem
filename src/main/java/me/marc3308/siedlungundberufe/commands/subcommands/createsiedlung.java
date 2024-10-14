@@ -57,7 +57,6 @@ public class createsiedlung extends subcommand {
             ArrayList<String> ownerliste =new ArrayList<>();
             ownerliste.add(pp.getUniqueId().toString());
             siedlungsliste.add(new siedlung(ownerliste,loc1,loc2,name,"",200,"DIAMOND",new ArrayList<String>(),0,"",""));
-            spielerliste.add(new spielerprovil(name,pp.getUniqueId().toString(),true,true,true,true,true,0));
             pp.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER,(siedlungsliste.size()-1));
             savesiedlungen();
 
@@ -73,6 +72,23 @@ public class createsiedlung extends subcommand {
             p.sendMessage(ChatColor.GREEN+name+ChatColor.DARK_GREEN+" wurde erfolgreich erstellt");
             pp.sendMessage(ChatColor.GREEN+"Dir gehört nun dieser Bereich");
 
+            //if already init
+            for (spielerprovil sp : spielerliste){
+                if(sp.getUuid().equals(p.getUniqueId().toString())){
+                    sp.setAbbau(true);
+                    sp.setHinbau(true);
+                    sp.setKisten(true);
+                    sp.setGaste(true);
+                    sp.setMitglied(true);
+                    sp.setRules(true);
+                    sp.setVoteckicks(new ArrayList<>());
+                    p.closeInventory();
+                    return;
+                }
+            }
+
+            spielerliste.add(new spielerprovil(pp.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING)
+                    ,pp.getUniqueId().toString(),true,true,true,true,true,true,new ArrayList<String>()));
 
         } catch (IllegalArgumentException e){
             p.sendMessage(ChatColor.RED+error);

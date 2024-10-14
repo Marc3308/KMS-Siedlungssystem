@@ -2,6 +2,7 @@ package me.marc3308.siedlungundberufe.commands.subcommands;
 
 import me.marc3308.siedlungundberufe.commands.subcommand;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
+import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
+import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
 
 public class infocommand extends subcommand {
     @Override
@@ -33,7 +35,7 @@ public class infocommand extends subcommand {
     public void perform(Player p, String[] args) {
 
         if(args.length<2){
-            p.sendMessage(net.md_5.bungee.api.ChatColor.RED+getSyntax());
+            p.sendMessage(ChatColor.RED+getSyntax());
             return;
         }
 
@@ -41,9 +43,9 @@ public class infocommand extends subcommand {
         for (siedlung ss : siedlungsliste)if(ss.getOwner().equals(Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString()))s=ss;
 
         ArrayList<String> owner=new ArrayList<>();
-        for (String ss : s.getOwner())owner.add(Bukkit.getPlayer(UUID.fromString(ss)).getName());
+        for (String ss : s.getOwner())for (spielerprovil sp : spielerliste) if(sp.getUuid().equals(ss))owner.add(sp.getName());
         ArrayList<String> member=new ArrayList<>();
-        for (String ss : s.getMemberlist())owner.add(Bukkit.getPlayer(UUID.fromString(ss)).getName());
+        for (String ss : s.getMemberlist())for (spielerprovil sp : spielerliste) if(sp.getUuid().equals(ss))member.add(sp.getName());
 
         p.sendMessage(ChatColor.DARK_GREEN+"------------Info-----------");
         p.sendMessage(ChatColor.DARK_GREEN+"Anführer: "+ChatColor.GREEN+owner);

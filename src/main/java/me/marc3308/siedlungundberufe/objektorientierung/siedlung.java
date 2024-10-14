@@ -2,7 +2,6 @@ package me.marc3308.siedlungundberufe.objektorientierung;
 
 import org.bukkit.Location;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class siedlung {

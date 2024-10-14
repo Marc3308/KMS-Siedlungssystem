@@ -21,6 +21,8 @@ import java.util.Random;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.*;
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
+import static me.marc3308.siedlungundberufe.utilitys.getSpielerprovile;
+import static me.marc3308.siedlungundberufe.utilitys.isGast;
 import static org.bukkit.Particle.END_ROD;
 
 public class siedlungsgui implements Listener {
@@ -42,7 +44,7 @@ public class siedlungsgui implements Listener {
 
             switch (e.getCurrentItem().getType()){
                 case WHITE_CONCRETE: //spieler gui
-                    Inventory spielerinv=Bukkit.createInventory(p,27,s.getName()+" > Spieler Verwalten");
+                    Inventory spielerinv=Bukkit.createInventory(p,27,s.getName()+" > Spieler verwalten");
                     p.openInventory(spielerinv);
                     break;
                 case GREEN_CONCRETE:
@@ -50,6 +52,7 @@ public class siedlungsgui implements Listener {
                     p.openInventory(infoinv);
                     break;
                 case GREEN_CONCRETE_POWDER:
+                    if(!getSpielerprovile(p.getUniqueId().toString()).isGaste())return;
                     Inventory gästeinv=Bukkit.createInventory(p,54,s.getName()+" > Gäste Verwalten");
                     p.openInventory(gästeinv);
                     break;
@@ -59,21 +62,24 @@ public class siedlungsgui implements Listener {
             }
         }
 
-        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Spieler Verwalten")) {
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Spieler verwalten")) {
             e.setCancelled(true);
             if (e.getCurrentItem() == null) return;
 
             switch (e.getCurrentItem().getType()){
                 case GREEN_CONCRETE_POWDER:
-                    Inventory gästeinv=Bukkit.createInventory(p,54,s.getName()+" > Gäste Verwalten");
+                    if(!getSpielerprovile(p.getUniqueId().toString()).isGaste())return;
+                    Inventory gästeinv=Bukkit.createInventory(p,54,s.getName()+" > Gäste verwalten");
                     p.openInventory(gästeinv);
                     break;
                 case WHITE_CONCRETE_POWDER:
-                    Inventory mitinv=Bukkit.createInventory(p,54,s.getName()+" > Mitglieder Verwalten");
+                    if(!getSpielerprovile(p.getUniqueId().toString()).isMitglied())return;
+                    Inventory mitinv=Bukkit.createInventory(p,54,s.getName()+" > Mitglieder verwalten");
                     p.openInventory(mitinv);
                     break;
                 case GRAY_CONCRETE_POWDER:
-                    Inventory onerinv=Bukkit.createInventory(p,54,s.getName()+" > Anführer Verwalten");
+                    if(!s.getOwner().contains(p.getUniqueId().toString()))return;
+                    Inventory onerinv=Bukkit.createInventory(p,54,s.getName()+" > Anführer verwalten");
                     p.openInventory(onerinv);
                     break;
                 case ARROW:
@@ -83,7 +89,7 @@ public class siedlungsgui implements Listener {
         }
 
         //gäste inventare
-        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Gäste Verwalten")){
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Gäste verwalten")){
             e.setCancelled(true);
             if(e.getCurrentItem()==null)return;
 
@@ -98,21 +104,24 @@ public class siedlungsgui implements Listener {
                     gast.getPersistentDataContainer().remove(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"gast"));
                 } else {
                     gast.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"gast"), PersistentDataType.BOOLEAN,true);
+                    gast.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"abbaun"), PersistentDataType.BOOLEAN,true);
+                    gast.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"hinbaun"), PersistentDataType.BOOLEAN,true);
+                    gast.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"kisten"), PersistentDataType.BOOLEAN,false);
                 }
             } else if(e.getCurrentItem().getType().equals(Material.ARROW)){
-                Inventory spielerinv=Bukkit.createInventory(p,27,s.getName()+" > Spieler Verwalten");
+                Inventory spielerinv=Bukkit.createInventory(p,27,s.getName()+" > Spieler verwalten");
                 p.openInventory(s.getStufe()==0 ? siedlung : spielerinv);
                 return;
             }
 
             //reloaden
-            Inventory gästeinv=Bukkit.createInventory(p,54,s.getName()+" > Gäste Verwalten");
+            Inventory gästeinv=Bukkit.createInventory(p,54,s.getName()+" > Gäste verwalten");
             p.openInventory(gästeinv);
 
         }
 
         //Mitglieder inventare
-        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Mitglieder Verwalten")){
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Mitglieder verwalten")){
             e.setCancelled(true);
             if(e.getCurrentItem()==null)return;
 
@@ -124,28 +133,28 @@ public class siedlungsgui implements Listener {
                 for (String ss : s.getMemberlist()){
                     if(ss.equals(Bukkit.getOfflinePlayer(skull.getOwner()).getUniqueId().toString())){
 
+                        //only owner
+                        if(!s.getOwner().contains(p.getUniqueId().toString()))return;
+
                         //get spielerprofil
                         spielerprovil sp=spielerliste.get(0);
                         for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(ss))sp=sdp;
 
-                        if(s.getOwner().size()<2){
+                        if(s.getOwner().size()<1){
                             List<String> memberlist=s.getMemberlist();
                             memberlist.remove(sp.getUuid());
                             s.setMemberlist(memberlist);
                             if(Bukkit.getPlayer(skull.getOwner())!=null)Bukkit.getPlayer(skull.getOwner()).getPersistentDataContainer().remove(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"));
                         } else {
-                            int kickvotes=sp.getVoteckicks();
-
-                            if(p.getPersistentDataContainer().has(new NamespacedKey(plugin, "kick"+skull.getOwner()), PersistentDataType.BOOLEAN)){
-                                kickvotes--;
-                                p.getPersistentDataContainer().remove(new NamespacedKey(plugin, "kick"+skull.getOwner()));
+                            List<String> kickvotes=sp.getVoteckicks();
+                            if(kickvotes.contains(p.getUniqueId().toString())){
+                                kickvotes.remove(p.getUniqueId().toString());
                             } else {
-                                kickvotes++;
-                                p.getPersistentDataContainer().set(new NamespacedKey(plugin, "kick"+skull.getOwner()), PersistentDataType.BOOLEAN,true);
+                                kickvotes.add(p.getUniqueId().toString());
                             }
 
-                            if(s.getOwner().size()/2.0>kickvotes){
-                                sp.setVoteckicks(0);
+                            if(s.getOwner().size()/2.0<kickvotes.size()){
+                                sp.setVoteckicks(new ArrayList<String>());
                                 List<String> memberlist=s.getMemberlist();
                                 memberlist.remove(sp.getUuid());
                                 s.setMemberlist(memberlist);
@@ -156,7 +165,7 @@ public class siedlungsgui implements Listener {
                         }
 
                         //reloaden
-                        Inventory gästeinv=Bukkit.createInventory(p,54,s.getName()+" > Mitglieder Verwalten");
+                        Inventory gästeinv=Bukkit.createInventory(p,54,s.getName()+" > Mitglieder verwalten");
                         p.openInventory(gästeinv);
                         return;
                     }
@@ -167,7 +176,7 @@ public class siedlungsgui implements Listener {
 
                 //invite
                 p.sendMessage(ChatColor.GREEN+gast.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING)+ChatColor.DARK_GREEN+" wurde eingeladen");
-                TextComponent loc2=new TextComponent(ChatColor.DARK_GREEN+"Du wurdest als Volksmitglied eingeladen: "+ChatColor.GREEN+s.getName()+ChatColor.YELLOW+"[Click um begutachten]");
+                TextComponent loc2=new TextComponent(ChatColor.DARK_GREEN+"Du hast eine Siedlungseinladung erhalten "+ChatColor.YELLOW+"[Linksklick zum Anschauen]");
                 loc2.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/einladung"));
                 gast.sendMessage(loc2);
                 gast.getPersistentDataContainer().set(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER, siedlungsliste.indexOf(s));
@@ -175,52 +184,53 @@ public class siedlungsgui implements Listener {
 
 
             } else if(e.getCurrentItem().getType().equals(Material.ARROW)){
-                Inventory spielerinv=Bukkit.createInventory(p,27,s.getName()+" > Spieler Verwalten");
+                Inventory spielerinv=Bukkit.createInventory(p,27,s.getName()+" > Spieler verwalten");
                 p.openInventory(s.getStufe()==0 ? siedlung : spielerinv);
                 return;
             }
 
             //reloaden
-            Inventory gästeinv=Bukkit.createInventory(p,54,s.getName()+" > Mitglieder Verwalten");
+            Inventory gästeinv=Bukkit.createInventory(p,54,s.getName()+" > Mitglieder verwalten");
             p.openInventory(gästeinv);
 
         }
 
         //Owner inventare
-        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Anführer Verwalten")){
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Anführer verwalten")){
             e.setCancelled(true);
             if(e.getCurrentItem()==null)return;
 
-            //skull
-            SkullMeta skull=(SkullMeta) e.getCurrentItem().getItemMeta();
-
             if(e.getCurrentItem().getType().equals(Material.PLAYER_HEAD)){
+
+                //skull
+                SkullMeta skull=(SkullMeta) e.getCurrentItem().getItemMeta();
 
                 //is a owner
                 for(String ss : s.getOwner()){
                     if(ss.equals(Bukkit.getOfflinePlayer(skull.getOwner()).getUniqueId().toString())) {
 
                         //get spielerprofil
-                        spielerprovil sp = spielerliste.get(0);
-                        for (spielerprovil sdp : spielerliste) if (sdp.getUuid().equals(ss)) sp = sdp;
+                        spielerprovil sp = getSpielerprovile(ss);
 
-                        if (s.getOwner().size() > 2) {
-                            int kickvotes = sp.getVoteckicks();
+                        if (s.getOwner().size() > 1) {
+                            List<String> kickvotes=sp.getVoteckicks();
 
-                            if (p.getPersistentDataContainer().has(new NamespacedKey(plugin, "kick" + skull.getOwner()), PersistentDataType.BOOLEAN)) {
-                                kickvotes--;
-                                p.getPersistentDataContainer().remove(new NamespacedKey(plugin, "kick" + skull.getOwner()));
+                            if(kickvotes.contains(p.getUniqueId().toString())){
+                                kickvotes.remove(p.getUniqueId().toString());
                             } else {
-                                kickvotes++;
-                                p.getPersistentDataContainer().set(new NamespacedKey(plugin, "kick" + skull.getOwner()), PersistentDataType.BOOLEAN, true);
+                                kickvotes.add(p.getUniqueId().toString());
                             }
 
-                            if (s.getOwner().size() / 2.0 > kickvotes) {
-                                sp.setVoteckicks(0);
+                            if(s.getOwner().size()/2.0<kickvotes.size()) {
+                                sp.setVoteckicks(new ArrayList<String>());
                                 //remove owner
                                 List<String> ownerlist = s.getOwner();
                                 ownerlist.remove(sp.getUuid());
                                 s.setOwner(ownerlist);
+
+                                sp.setMitglied(false);
+                                sp.setRules(false);
+                                sp.setGaste(false);
 
                                 //add to member
                                 List<String> memberlist = s.getMemberlist();
@@ -231,32 +241,66 @@ public class siedlungsgui implements Listener {
                             }
                         }
                         //reloaden
-                        Inventory gästeinv = Bukkit.createInventory(p, 54, s.getName() + " > Anführer Verwalten");
+                        Inventory gästeinv = Bukkit.createInventory(p, 54, s.getName() + " > Anführer verwalten");
                         p.openInventory(gästeinv);
                         return;
                     }
                 }
 
                 //will be owner
-                spielerprovil sp = spielerliste.get(0);
-                for (spielerprovil sdp : spielerliste) if (sdp.getUuid().equals(Bukkit.getOfflinePlayer(skull.getOwner()).getUniqueId().toString())) sp = sdp;
+                spielerprovil sp = getSpielerprovile(Bukkit.getOfflinePlayer(skull.getOwner()).getUniqueId().toString());
 
-                List<String> ownerlist=s.getOwner();
-                ownerlist.add(sp.getUuid());
-                s.setOwner(ownerlist);
+                if (s.getOwner().size() > 1) {
+                    List<String> kickvotes=sp.getVoteckicks();
 
-                List<String> memberlist=s.getMemberlist();
-                memberlist.remove(sp.getUuid());
-                s.setMemberlist(memberlist);
+                    if(kickvotes.contains(p.getUniqueId().toString())){
+                        kickvotes.remove(p.getUniqueId().toString());
+                    } else {
+                        kickvotes.add(p.getUniqueId().toString());
+                    }
+
+                    if(s.getOwner().size()/2.0<kickvotes.size()) {
+
+                        sp.setVoteckicks(new ArrayList<String>());
+                        //remove owner
+                        List<String> ownerlist=s.getOwner();
+                        ownerlist.add(sp.getUuid());
+                        s.setOwner(ownerlist);
+
+                        sp.setGaste(true);
+                        sp.setRules(true);
+                        sp.setMitglied(true);
+
+                        List<String> memberlist=s.getMemberlist();
+                        memberlist.remove(sp.getUuid());
+                        s.setMemberlist(memberlist);
+                    } else {
+
+                        sp.setVoteckicks(kickvotes);
+
+                    }
+                } else {
+                    List<String> ownerlist=s.getOwner();
+                    ownerlist.add(sp.getUuid());
+                    s.setOwner(ownerlist);
+
+                    sp.setGaste(true);
+                    sp.setRules(true);
+                    sp.setMitglied(true);
+
+                    List<String> memberlist=s.getMemberlist();
+                    memberlist.remove(sp.getUuid());
+                    s.setMemberlist(memberlist);
+                }
 
             } else if(e.getCurrentItem().getType().equals(Material.ARROW)){
-                Inventory spielerinv=Bukkit.createInventory(p,27,s.getName()+" > Spieler Verwalten");
+                Inventory spielerinv=Bukkit.createInventory(p,27,s.getName()+" > Spieler verwalten");
                 p.openInventory(s.getStufe()==0 ? siedlung : spielerinv);
                 return;
             }
 
             //reloaden
-            Inventory gästeinv=Bukkit.createInventory(p,54,s.getName()+" > Anführer Verwalten");
+            Inventory gästeinv=Bukkit.createInventory(p,54,s.getName()+" > Anführer verwalten");
             p.openInventory(gästeinv);
             return;
         }
@@ -268,19 +312,37 @@ public class siedlungsgui implements Listener {
 
             switch (e.getCurrentItem().getType()){
                 case GREEN_CONCRETE:
-                    p.sendMessage(ChatColor.GREEN+"Du hast die einladung angenommen");
+                    p.sendMessage(ChatColor.GREEN+"Du hast die Einladung angenommen");
                     p.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER,p.getPersistentDataContainer().get(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER));
                     p.getPersistentDataContainer().remove(new NamespacedKey(plugin, "einladung"));
+                    p.getPersistentDataContainer().remove(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"gast"));
+
                     //add member
                     List<String> ownerlist=s.getMemberlist();
                     ownerlist.add(p.getUniqueId().toString());
                     s.setMemberlist(ownerlist);
+
+                    //if already init
+                    for (spielerprovil sp : spielerliste){
+                        if(sp.getUuid().equals(p.getUniqueId().toString())){
+                            sp.setAbbau(true);
+                            sp.setHinbau(true);
+                            sp.setKisten(true);
+                            sp.setGaste(false);
+                            sp.setRules(false);
+                            sp.setMitglied(false);
+                            sp.setVoteckicks(new ArrayList<String>());
+                            p.closeInventory();
+                            return;
+                        }
+                    }
+
                     spielerliste.add(new spielerprovil(p.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING)
-                            ,p.getUniqueId().toString(),false,false,false,false,false, 0));
+                            ,p.getUniqueId().toString(),true,true,true,false,false, false,new ArrayList<String>()));
                     p.closeInventory();
                     break;
                 case RED_CONCRETE:
-                    p.sendMessage(ChatColor.GREEN+"Du hast die einladung abgelent");
+                    p.sendMessage(ChatColor.GREEN+"Du hast die Einladung abgelent");
                     p.getPersistentDataContainer().remove(new NamespacedKey(plugin, "einladung"));
                     p.closeInventory();
                     break;
@@ -336,7 +398,7 @@ public class siedlungsgui implements Listener {
                     }.runTaskTimer(Siedlungundberufe.getPlugin(),0,20);
                     break;
                 case WHITE_CONCRETE_POWDER:
-                    Inventory wildinv=Bukkit.createInventory(p,54,s.getName()+" > SpielerInvormationen");
+                    Inventory wildinv=Bukkit.createInventory(p,54,s.getName()+" > Spielerinformationen");
                     p.openInventory(wildinv);
                     break;
                 case ARROW:
@@ -346,21 +408,101 @@ public class siedlungsgui implements Listener {
 
         }
 
-        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > SpielerInvormationen")){
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Spielerinformationen")){
 
             e.setCancelled(true);
             if(e.getCurrentItem()==null)return;
 
             switch (e.getCurrentItem().getType()){
                 case PLAYER_HEAD:
-                    //Inventory infoinv=Bukkit.createInventory(p,54,Bukkit.getOfflinePlayer(e.getCurrentItem().getOw)+" > Einstellungen");
-                    //p.openInventory(infoinv);
+                    if(!getSpielerprovile(p.getUniqueId().toString()).isRules())return;
+
+                    boolean gastinv=isGast(((SkullMeta) e.getCurrentItem().getItemMeta()).getOwner(),siedlungsliste.indexOf(s))!=null;
+                    Inventory infoeinstellung=Bukkit.createInventory(p,gastinv ? 27 : 45, gastinv ? s.getName()+" > Gäste > Einstellungen" : s.getName()+" > Spielerinformationen > Einstellungen");
+                    infoeinstellung.setItem(0,e.getCurrentItem());
+                    p.openInventory(infoeinstellung);
                     break;
                 case ARROW:
                     Inventory infoinv=Bukkit.createInventory(p,27,s.getName()+" > Informationen");
                     p.openInventory(infoinv);
                     break;
             }
+        }
+
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Spielerinformationen > Einstellungen")){
+
+            e.setCancelled(true);
+            if(e.getCurrentItem()==null)return;
+            if(e.getCurrentItem().getType().equals(Material.ARROW)){
+                Inventory wildinv=Bukkit.createInventory(p,54,s.getName()+" > Spielerinformationen");
+                p.openInventory(wildinv);
+                return;
+            }
+
+            spielerprovil sp = getSpielerprovile(Bukkit.getOfflinePlayer(((SkullMeta) e.getInventory().getItem(0).getItemMeta()).getOwner()).getUniqueId().toString());
+
+            //cant chanche a owner
+            if(s.getOwner().contains(sp.getUuid()))return;
+
+            switch (e.getSlot()){
+                case 12:
+                    sp.setAbbau(!sp.isAbbau());
+                    break;
+                case 21:
+                    sp.setHinbau(!sp.isHinbau());
+                    break;
+                case 30:
+                    sp.setKisten(!sp.isKisten());
+                    break;
+                case 15:
+                    sp.setGaste(!sp.isGaste());
+                    break;
+                case 24:
+                    sp.setMitglied(!sp.isMitglied());
+                    break;
+                case 33:
+                    sp.setRules(!sp.isRules());
+                    break;
+            }
+
+            Inventory infoeinstellung=Bukkit.createInventory(p,45,s.getName()+" > Spielerinformationen > Einstellungen");
+            infoeinstellung.setItem(0,e.getInventory().getItem(0));
+            p.openInventory(infoeinstellung);
+
+        }
+
+        if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Gäste > Einstellungen")){
+
+            e.setCancelled(true);
+            if(e.getCurrentItem()==null)return;
+            if(e.getCurrentItem().getType().equals(Material.ARROW)){
+                Inventory wildinv=Bukkit.createInventory(p,54,s.getName()+" > Spielerinformationen");
+                p.openInventory(wildinv);
+                return;
+            }
+
+            Player gast=isGast(((SkullMeta) e.getInventory().getItem(0).getItemMeta()).getOwner(),siedlungsliste.indexOf(s));
+
+
+            switch (e.getSlot()){
+                case 11:
+                    gast.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"abbaun"), PersistentDataType.BOOLEAN,
+                            !gast.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"abbaun"), PersistentDataType.BOOLEAN));
+                    break;
+                case 13:
+                    gast.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"hinbaun"), PersistentDataType.BOOLEAN,
+                            !gast.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"hinbaun"), PersistentDataType.BOOLEAN));
+                    break;
+                case 15:
+                    gast.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"kisten"), PersistentDataType.BOOLEAN,
+                            !gast.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"kisten"), PersistentDataType.BOOLEAN));
+                    break;
+            }
+
+            Inventory infoeinstellung=Bukkit.createInventory(p,27,s.getName()+" > Gäste > Einstellungen");
+            infoeinstellung.setItem(0,e.getInventory().getItem(0));
+            p.openInventory(infoeinstellung);
+
         }
 
         if(e.getView().getTitle().equalsIgnoreCase(s.getName()+" > Namensänderung")){

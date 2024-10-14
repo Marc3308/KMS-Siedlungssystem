@@ -9,7 +9,9 @@ me\marc3308\siedlungundberufe\utilitys.class
 me\marc3308\siedlungundberufe\commands\savecommand.class
 me\marc3308\siedlungundberufe\Siedlungsevents\siedlungeinstellung\spawningregulation.class
 me\marc3308\siedlungundberufe\commands\subcommands\helpcommand.class
+me\marc3308\siedlungundberufe\objektorientierung\spielerprovil.class
 me\marc3308\siedlungundberufe\commands\subcommands\infocommand.class
+me\marc3308\siedlungundberufe\commands\subcommands\opencommand.class
 me\marc3308\siedlungundberufe\Siedlungundberufe.class
 me\marc3308\siedlungundberufe\commands\subcommands\createsiedlung.class
 me\marc3308\siedlungundberufe\GUI\siedlungsgui.class

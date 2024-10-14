@@ -9,8 +9,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.UUID;
-
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
 import static me.marc3308.siedlungundberufe.utilitys.savesiedlungen;
 

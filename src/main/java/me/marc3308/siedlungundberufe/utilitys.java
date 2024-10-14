@@ -69,6 +69,10 @@ public class utilitys {
             con.set(spielerliste.indexOf(s)+".hinbau",s.isHinbau());
             con.set(spielerliste.indexOf(s)+".kisten",s.isKisten());
             con.set(spielerliste.indexOf(s)+".gaste",s.isGaste());
+            con.set(spielerliste.indexOf(s)+".mitglied",s.isMitglied());
+            con.set(spielerliste.indexOf(s)+".rules",s.isRules());
+            con.set(spielerliste.indexOf(s)+".voteckicks",s.getVoteckicks());
+
         }
 
 
@@ -96,24 +100,24 @@ public class utilitys {
         return -1;
     }
 
-    public static boolean darferdas(Player p,Location loc){
+    public static boolean darferdas(Player p,Location loc, String berechtigung){
         if(!p.getGameMode().equals(GameMode.SURVIVAL))return true; //ist als mod/admin unterwegs
         int sone=inasone(loc);
         if(sone<0)return true; //in keiner zone
-        if(p.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), sone+"gast")))return true; //gast einer zone
+        if(p.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), sone+"gast"))
+                && p.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), inasone(p.getLocation())+berechtigung), PersistentDataType.BOOLEAN))return true; //gast einer zone
         if(!p.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER))return false; //hat keine zonenenangehörikeit
-        if(p.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER).equals(sone))return true; // mittglied der zone
+        if(p.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER).equals(sone)){ //mitglied der zone
+            spielerprovil sp =getSpielerprovile(p.getUniqueId().toString());
+            if(berechtigung.equals("abbaun"))return sp.isAbbau(); //darf abbaun
+            if(berechtigung.equals("hinbaun"))return sp.isHinbau(); //darf baun
+            if(berechtigung.equals("kisten"))return sp.isKisten(); //darf kistenöfnen
+        }
         return false; //einfach so
     }
 
     public static ItemStack getItem(String item){
         switch (item){
-            case "einladungplus":
-                ItemStack einladungplus=new ItemStack(Material.GREEN_CONCRETE);
-                ItemMeta einladungplus_meta=einladungplus.getItemMeta();
-                einladungplus_meta.setDisplayName(ChatColor.GREEN+""+ChatColor.BOLD+"Annehmen");
-                einladungplus.setItemMeta(einladungplus_meta);
-                return einladungplus;
             case "einladungminus":
                 ItemStack einladungminus=new ItemStack(Material.RED_CONCRETE);
                 ItemMeta einladungminus_meta=einladungminus.getItemMeta();
@@ -121,7 +125,6 @@ public class utilitys {
                 einladungminus.setItemMeta(einladungminus_meta);
                 return einladungminus;
             case "rightarrow":
-
                 String base64 = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTM1ZTQyZmM3MDYwYzIyM2FjYzk2NWY3YzU5OTZmMjcyNjQ0YWY0MGE0NzIzYTM3MmY1OTAzZjhlOWYxODhlNyJ9fX0=";
                 ItemStack head = new ItemStack(Material.PLAYER_HEAD, 1);
                 SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
@@ -181,7 +184,7 @@ public class utilitys {
                 //berufe
                 ItemStack beruf = new ItemStack(Material.BARRIER);
                 ItemMeta beruf_meta=beruf.getItemMeta();
-                beruf_meta.setDisplayName("Comming Soon");
+                beruf_meta.setDisplayName("Coming Soon");
                 beruf.setItemMeta(beruf_meta);
                 return beruf;
             case "einstellung":
@@ -202,21 +205,21 @@ public class utilitys {
                 //bgäste
                 ItemStack gäste=new ItemStack(Material.GREEN_CONCRETE_POWDER);
                 ItemMeta gäste_met= gäste.getItemMeta();
-                gäste_met.setDisplayName(ChatColor.GREEN+"Gäste Verwalten");
+                gäste_met.setDisplayName(ChatColor.GREEN+"Gäste verwalten");
                 gäste.setItemMeta(gäste_met);
                 return gäste;
             case "mitglieder":
                 //mitglied
                 ItemStack mitglieder=new ItemStack(Material.WHITE_CONCRETE_POWDER);
                 ItemMeta mitglieder_met= mitglieder.getItemMeta();
-                mitglieder_met.setDisplayName(ChatColor.WHITE+"Mitglieder Verwalten");
+                mitglieder_met.setDisplayName(ChatColor.WHITE+"Mitglieder verwalten");
                 mitglieder.setItemMeta(mitglieder_met);
                 return mitglieder;
             case "owner":
                 //owner
                 ItemStack owner=new ItemStack(Material.GRAY_CONCRETE_POWDER);
                 ItemMeta owner_met= owner.getItemMeta();
-                owner_met.setDisplayName(ChatColor.GRAY+"Anführer Verwalten");
+                owner_met.setDisplayName(ChatColor.GRAY+"Anführer verwalten");
                 owner.setItemMeta(owner_met);
                 return owner;
         }
@@ -229,20 +232,30 @@ public class utilitys {
 
     public static ItemStack getInvoBlock(String item,siedlung s){
 
+        ArrayList<String> beschreibung=new ArrayList<>();
+
         switch (item){
+            case "einladungplus":
+                ItemStack einladungplus=new ItemStack(Material.GREEN_CONCRETE);
+                ItemMeta einladungplus_meta=einladungplus.getItemMeta();
+                einladungplus_meta.setDisplayName(ChatColor.GREEN+""+ChatColor.BOLD+"Annehmen");
+                beschreibung.clear();
+                beschreibung.add("Hiermit trittst du der Siedlung "+s.getName()+" bei.");
+                einladungplus.setItemMeta(einladungplus_meta);
+                return einladungplus;
             case "infoblock":
                 //informationen
                 ItemStack infoblock=new ItemStack(Material.GREEN_CONCRETE);
                 ItemMeta infoblock_meta= infoblock.getItemMeta();
                 infoblock_meta.setDisplayName(ChatColor.DARK_GREEN+"Informationen");
-                ArrayList<String> beschreibung=new ArrayList<>();
+                beschreibung.clear();
                 beschreibung.add(ChatColor.DARK_GREEN+"Name: "+ChatColor.GREEN+s.getName());
                 beschreibung.add(ChatColor.DARK_GREEN+"Motto: "+ChatColor.GREEN+s.getBeschreibung());
                 beschreibung.add(ChatColor.DARK_GREEN+"Stufe: "+ChatColor.GREEN+s.getStufe());
-                beschreibung.add(ChatColor.DARK_GREEN+"Beigetreten: "+ChatColor.GREEN+(s.getMemberlist().size()+s.getOwner().size()));
+                beschreibung.add(ChatColor.DARK_GREEN+"Mitgliederanzahl: "+ChatColor.GREEN+(s.getMemberlist().size()+s.getOwner().size()));
                 int x=s.getLoc1().getX()<s.getLoc2().getX() ? s.getLoc2().getBlockX()-s.getLoc1().getBlockX() : s.getLoc1().getBlockX()-s.getLoc2().getBlockX();
                 int z=s.getLoc1().getZ()<s.getLoc2().getZ() ? s.getLoc2().getBlockZ()-s.getLoc1().getBlockZ() : s.getLoc1().getBlockZ()-s.getLoc2().getBlockZ();
-                beschreibung.add(ChatColor.DARK_GREEN+"Gesamt Größe: "+ net.md_5.bungee.api.ChatColor.YELLOW+"["+x+"x"+z+"]");
+                beschreibung.add(ChatColor.DARK_GREEN+"Gesamtgröße: "+ net.md_5.bungee.api.ChatColor.YELLOW+"["+x+"x"+z+"]");
                 beschreibung.add(" ");
                 beschreibung.add(ChatColor.YELLOW+"Linksklick für mehr Informationen");
                 infoblock_meta.setLore(beschreibung);
@@ -259,9 +272,9 @@ public class utilitys {
                 eckblock_beschreibung.add(ChatColor.GRAY+"Eckpunkt 4: "+ChatColor.YELLOW+"["+s.getLoc2().getBlockX()+"x "+s.getLoc2().getBlockZ()+"z ]");
                 int xx=s.getLoc1().getX()<s.getLoc2().getX() ? s.getLoc2().getBlockX()-s.getLoc1().getBlockX() : s.getLoc1().getBlockX()-s.getLoc2().getBlockX();
                 int zz=s.getLoc1().getZ()<s.getLoc2().getZ() ? s.getLoc2().getBlockZ()-s.getLoc1().getBlockZ() : s.getLoc1().getBlockZ()-s.getLoc2().getBlockZ();
-                eckblock_beschreibung.add(ChatColor.GRAY+"Gesamt Größe: "+ ChatColor.YELLOW+"["+xx+"x"+zz+"]");
+                eckblock_beschreibung.add(ChatColor.GRAY+"Gesamtgröße: "+ ChatColor.YELLOW+"["+xx+"x"+zz+"]");
                 eckblock_beschreibung.add(" ");
-                eckblock_beschreibung.add(ChatColor.YELLOW+"Linksklick um Visualisation zu Toggeln");
+                eckblock_beschreibung.add(ChatColor.YELLOW+"Linksklick um Visualisierung umzuschalten");
                 eckblock_meta.setLore(eckblock_beschreibung);
                 eckblock.setItemMeta(eckblock_meta);
                 return eckblock;
@@ -270,12 +283,12 @@ public class utilitys {
                 ItemMeta spielerinvo_meta=spielerinvo.getItemMeta();
                 spielerinvo_meta.setDisplayName(ChatColor.WHITE+""+ChatColor.BOLD+"Mitglieder");
                 ArrayList<String> spielerinvo_beschreibung=new ArrayList<>();
-                spielerinvo_beschreibung.add(ChatColor.WHITE+"Anführer:");
-                for (String ss : s.getOwner())for (spielerprovil sp : spielerliste)if(sp.getUuid().equals(ss))spielerinvo_beschreibung.add(ChatColor.WHITE+(sp.getName()));
-                if(!s.getMemberlist().isEmpty()){
-                    spielerinvo_beschreibung.add(ChatColor.WHITE+"Mitglieder:");
-                    for (String ss : s.getMemberlist())for (spielerprovil sp : spielerliste)if(sp.getUuid().equals(ss))spielerinvo_beschreibung.add(ChatColor.WHITE+(sp.getName()));
-                }
+                spielerinvo_beschreibung.add(ChatColor.GRAY+"Anführer: "+s.getOwner().size());
+                spielerinvo_beschreibung.add(ChatColor.WHITE+"Mitglieder: "+s.getMemberlist().size());
+
+                int i=0;
+                for (Player gast : Bukkit.getOnlinePlayers())if(gast.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), siedlungsliste.indexOf(s)+"gast"), PersistentDataType.BOOLEAN))i++;
+                spielerinvo_beschreibung.add(ChatColor.GREEN+"Gäste: "+i);
                 spielerinvo_meta.setLore(spielerinvo_beschreibung);
                 spielerinvo.setItemMeta(spielerinvo_meta);
 
@@ -283,12 +296,14 @@ public class utilitys {
             case "restinvos":
                 ItemStack restinvos=new ItemStack(Material.GREEN_CONCRETE_POWDER);
                 ItemMeta restinvos_meta= restinvos.getItemMeta();
-                restinvos_meta.setDisplayName(ChatColor.DARK_GREEN+""+ChatColor.BOLD+"Schrifltiche Invormationen");
+                restinvos_meta.setDisplayName(ChatColor.DARK_GREEN+""+ChatColor.BOLD+"Schriftliche Informationen");
                 ArrayList<String> restinvos_beschreibung=new ArrayList<>();
                 restinvos_beschreibung.add(ChatColor.DARK_GREEN+"Name: "+ChatColor.GREEN+s.getName());
                 restinvos_beschreibung.add(ChatColor.DARK_GREEN+"Motto: "+ChatColor.GREEN+s.getBeschreibung());
-                restinvos_beschreibung.add(ChatColor.DARK_GREEN+"Willkommens Nachricht: "+ChatColor.GREEN+s.getWelckomemasage());
-                restinvos_beschreibung.add(ChatColor.DARK_GREEN+"Verlassen Nachricht: "+ChatColor.GREEN+s.getLeavemessage());
+                restinvos_beschreibung.add(ChatColor.DARK_GREEN+"Willkommensnachricht: ");
+                restinvos_beschreibung.add(ChatColor.GREEN+s.getWelckomemasage());
+                restinvos_beschreibung.add(ChatColor.DARK_GREEN+"Verabschiedungsnachricht: ");
+                restinvos_beschreibung.add(ChatColor.GREEN+s.getLeavemessage());
                 restinvos_meta.setLore(restinvos_beschreibung);
                 restinvos.setItemMeta(restinvos_meta);
                 return restinvos;
@@ -299,6 +314,79 @@ public class utilitys {
         error_meta.setDisplayName(ChatColor.DARK_GREEN+"ERROR with "+item);
         error.setItemMeta(error_meta);
         return  error;
+    }
+
+    public static ItemStack getRuleItem(String item){
+        switch (item){
+            case "Abbauen":
+                ItemStack Abbauen=new ItemStack(Material.DIAMOND_PICKAXE);
+                ItemMeta Abbauen_meta=Abbauen.getItemMeta();
+                Abbauen_meta.setDisplayName(ChatColor.BOLD+"Abbauen");
+                Abbauen.setItemMeta(Abbauen_meta);
+                return Abbauen;
+            case "Platzieren":
+                ItemStack Platzieren=new ItemStack(Material.DIRT);
+                ItemMeta Platzieren_meta=Platzieren.getItemMeta();
+                Platzieren_meta.setDisplayName(ChatColor.BOLD+"Platzieren");
+                Platzieren.setItemMeta(Platzieren_meta);
+                return Platzieren;
+            case "Looten":
+                ItemStack Looten=new ItemStack(Material.CHEST);
+                ItemMeta Looten_meta=Looten.getItemMeta();
+                Looten_meta.setDisplayName(ChatColor.BOLD+"Kistenzugriff");
+                Looten.setItemMeta(Looten_meta);
+                return Looten;
+            case "Gaste":
+                ItemStack Gaste=new ItemStack(Material.GRAY_CONCRETE);
+                ItemMeta Gaste_meta=Gaste.getItemMeta();
+                Gaste_meta.setDisplayName(ChatColor.BOLD+"Gäste bearbeiten");
+                Gaste.setItemMeta(Gaste_meta);
+                return Gaste;
+            case "Mitglieder":
+                ItemStack Mitglieder=new ItemStack(Material.WHITE_CONCRETE);
+                ItemMeta Mitglieder_meta=Mitglieder.getItemMeta();
+                Mitglieder_meta.setDisplayName(ChatColor.BOLD+"Mitglieder bearbeiten");
+                Mitglieder.setItemMeta(Mitglieder_meta);
+                return Mitglieder;
+            case "Regeln":
+                ItemStack Regeln=new ItemStack(Material.BLACK_CONCRETE);
+                ItemMeta Regeln_meta=Regeln.getItemMeta();
+                Regeln_meta.setDisplayName(ChatColor.BOLD+"Rechte bearbeiten");
+                Regeln.setItemMeta(Regeln_meta);
+                return Regeln;
+            case "Verwehrt":
+                ItemStack Verwehrt=new ItemStack(Material.RED_CONCRETE_POWDER);
+                ItemMeta Verwehrt_meta=Verwehrt.getItemMeta();
+                Verwehrt_meta.setDisplayName(ChatColor.RED+""+ChatColor.BOLD+"Verwehrt");
+                Verwehrt.setItemMeta(Verwehrt_meta);
+                return Verwehrt;
+            case "Erlaubt":
+                ItemStack Erlaubt=new ItemStack(Material.GREEN_CONCRETE_POWDER);
+                ItemMeta Erlaubt_meta=Erlaubt.getItemMeta();
+                Erlaubt_meta.setDisplayName(ChatColor.GREEN+""+ChatColor.BOLD+"Erlaubt");
+                Erlaubt.setItemMeta(Erlaubt_meta);
+                return Erlaubt;
+        }
+        ItemStack error=new ItemStack(Material.COMMAND_BLOCK);
+        ItemMeta error_meta= error.getItemMeta();
+        error_meta.setDisplayName(ChatColor.DARK_GREEN+"ERROR with "+item);
+        error.setItemMeta(error_meta);
+        return  error;
+    }
+
+    public static spielerprovil getSpielerprovile(String UUidString){
+        //get spielerprofil
+        spielerprovil sp=spielerliste.get(0);
+        for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(UUidString))sp=sdp;
+        if(!sp.getUuid().equals(UUidString))return new spielerprovil("","",false,false,false,false,false,false,new ArrayList<>());
+        return sp;
+    }
+
+    public static Player isGast(String Uuid, int zone){
+        if(Bukkit.getPlayer(Uuid)==null)return null;
+        Player p=Bukkit.getPlayer(Uuid);
+        if(!p.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), zone+"gast"),PersistentDataType.BOOLEAN))return null;
+        return p;
     }
 
 }
