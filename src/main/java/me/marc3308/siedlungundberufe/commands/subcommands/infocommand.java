@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
+import static me.marc3308.siedlungundberufe.utilitys.inasone;
 
 public class infocommand extends subcommand {
     @Override
@@ -34,13 +35,16 @@ public class infocommand extends subcommand {
     @Override
     public void perform(Player p, String[] args) {
 
-        if(args.length<2){
+        siedlung s=siedlungsliste.get(0);
+
+        if(args.length<2 && inasone(p.getLocation())<0){
             p.sendMessage(ChatColor.RED+getSyntax());
             return;
+        } else if(args.length<2){
+            siedlungsliste.get(inasone(p.getLocation()));
+        } else {
+            for (siedlung ss : siedlungsliste)for (String sss : ss.getOwner())if(sss.equals(Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString()))s=ss;
         }
-
-        siedlung s=siedlungsliste.get(0);
-        for (siedlung ss : siedlungsliste)for (String sss : ss.getOwner())if(sss.equals(Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString()))s=ss;
 
         ArrayList<String> owner=new ArrayList<>();
         for (String ss : s.getOwner())for (spielerprovil sp : spielerliste) if(sp.getUuid().equals(ss))owner.add(sp.getName());

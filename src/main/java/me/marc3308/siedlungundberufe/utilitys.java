@@ -377,11 +377,13 @@ public class utilitys {
         //get spielerprofil
 
         spielerprovil sp=spielerliste.get(0);
-        while(!sp.getUuid().equals(UUidString)){
-            for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(UUidString))sp=sdp;
+        for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(UUidString))sp=sdp;
+        if(!sp.getUuid().equals(UUidString)){
             spielerliste.add(new spielerprovil("",UUidString,false,false,false,false,false,false,new ArrayList<>()));
+            return new spielerprovil("",UUidString,false,false,false,false,false,false,new ArrayList<>());
+        } else {
+            return sp;
         }
-        return sp;
     }
 
     public static Player isGast(String Uuid, int zone){
