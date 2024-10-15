@@ -375,9 +375,12 @@ public class utilitys {
 
     public static spielerprovil getSpielerprovile(String UUidString){
         //get spielerprofil
+
         spielerprovil sp=spielerliste.get(0);
-        for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(UUidString))sp=sdp;
-        if(!sp.getUuid().equals(UUidString))return new spielerprovil("","",false,false,false,false,false,false,new ArrayList<>());
+        while(!sp.getUuid().equals(UUidString)){
+            for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(UUidString))sp=sdp;
+            spielerliste.add(new spielerprovil("",UUidString,false,false,false,false,false,false,new ArrayList<>()));
+        }
         return sp;
     }
 

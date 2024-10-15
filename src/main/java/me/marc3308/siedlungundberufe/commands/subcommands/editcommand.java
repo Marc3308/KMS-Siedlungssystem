@@ -13,6 +13,7 @@ import java.util.List;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
+import static me.marc3308.siedlungundberufe.utilitys.getSpielerprovile;
 import static me.marc3308.siedlungundberufe.utilitys.savesiedlungen;
 
 public class editcommand extends subcommand {
@@ -60,8 +61,7 @@ public class editcommand extends subcommand {
                         ownerlist.add(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString());
                         s.setOwner(ownerlist);
 
-                        spielerprovil sp=spielerliste.get(0);
-                        for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString()))sp=sdp;
+                        spielerprovil sp=getSpielerprovile(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString());
                         sp.setRules(true);
                         sp.setGaste(true);
                         sp.setMitglied(true);
@@ -72,8 +72,7 @@ public class editcommand extends subcommand {
                         ownerlist.remove(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString());
                         s.setOwner(ownerlist);
 
-                        spielerprovil sp=spielerliste.get(0);
-                        for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString()))sp=sdp;
+                        spielerprovil sp=getSpielerprovile(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString());
                         sp.setRules(false);
                         sp.setGaste(false);
                         sp.setMitglied(false);
@@ -90,18 +89,14 @@ public class editcommand extends subcommand {
                     }
 
                     //if already init
-                    for (spielerprovil sp : spielerliste){
-                        if(sp.getUuid().equals(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString())){
-                            sp.setAbbau(true);
-                            sp.setHinbau(true);
-                            sp.setKisten(true);
-                            sp.setGaste(false);
-                            sp.setRules(false);
-                            sp.setMitglied(false);
-                            sp.setVoteckicks(new ArrayList<>());
-                            p.closeInventory();
-                        }
-                    }
+                    spielerprovil sp=getSpielerprovile(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString());
+                    sp.setAbbau(true);
+                    sp.setHinbau(true);
+                    sp.setKisten(true);
+                    sp.setGaste(false);
+                    sp.setRules(false);
+                    sp.setMitglied(false);
+                    sp.setVoteckicks(new ArrayList<>());
 
                     if(args[3].equals("add")){
                         List<String> ownerlist=s.getMemberlist();

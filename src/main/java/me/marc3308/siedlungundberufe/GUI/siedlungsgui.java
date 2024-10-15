@@ -393,7 +393,7 @@ public class siedlungsgui implements Listener {
                             }
 
                             for (Location loc : loclist){
-                                for (int i=p.getWorld().getMinHeight();i<p.getWorld().getMaxHeight();i++){
+                                for (int i=p.getWorld().getMinHeight();i<250;i++){
                                     loc.setY(i);
                                     p.spawnParticle(END_ROD,loc.clone().add(0.5,0,0.5),2,0,0,0,0.01);
                                 }

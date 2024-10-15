@@ -106,8 +106,9 @@ public class blockevents implements Listener {
     @EventHandler
     public void onknopf(InventoryClickEvent e){
         Player p= (Player) e.getWhoClicked();
-        if(darferdas(p,p.getLocation(), "kisten"))return;
+        if(e.getView().getType().equals(InventoryType.CRAFTING))return; //if it is your inventory
         if(e.getInventory().getType().equals(InventoryType.CHEST) && !e.getView().getTitle().equals("Chest") && !e.getView().getTitle().equals("Large Chest"))return; //if it is  acustem inv
+        if(darferdas(p,p.getLocation(), "kisten"))return;
         e.setCancelled(true);
 
         //warnung an den spieler

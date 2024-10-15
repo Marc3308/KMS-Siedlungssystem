@@ -39,26 +39,12 @@ public class deletecommand extends subcommand {
                     p.sendMessage(ChatColor.GREEN + "Die Siedlung " + ChatColor.DARK_RED + s.getName() + ChatColor.GREEN + " wurde erfolgreich gelöscht" + " Nr[" + siedlungsliste.indexOf(s) + "]");
 
                     for (Player pp : Bukkit.getOnlinePlayers()){
-                        //setze deine siedlung
-                        pp.getPersistentDataContainer().remove(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"));
-                        for (siedlung sss : siedlungsliste){
-                            for (String ms : sss.getOwner()){
-                                if(pp.getUniqueId().toString().equalsIgnoreCase(ms)){
-                                    pp.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER, siedlungsliste.indexOf(sss));
-                                    break;
-                                }
-                            }
-                            for (String ms : sss.getMemberlist()){
-                                if(pp.getUniqueId().toString().equalsIgnoreCase(ms)){
-                                    pp.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER, siedlungsliste.indexOf(sss));
-                                    break;
-                                }
-                            }
+                        if(s.getOwner().contains(pp.getUniqueId().toString()) || s.getMemberlist().contains(pp.getUniqueId().toString())){
+                            pp.getPersistentDataContainer().remove(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"));
                         }
                     }
 
-
-                    siedlungsliste.remove(s);
+                    siedlungsliste.remove(siedlungsliste.indexOf(s));
                     savesiedlungen();
                     return;
                 }
