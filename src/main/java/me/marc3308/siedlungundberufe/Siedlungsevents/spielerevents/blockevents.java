@@ -39,6 +39,22 @@ public class blockevents implements Listener {
         blockliste.add(Material.SMOKER);
         blockliste.add(Material.PLAYER_WALL_HEAD);
         blockliste.add(Material.PLAYER_HEAD);
+        blockliste.add(Material.BLACK_BED);
+        blockliste.add(Material.BLUE_BED);
+        blockliste.add(Material.BROWN_BED);
+        blockliste.add(Material.GREEN_BED);
+        blockliste.add(Material.CYAN_BED);
+        blockliste.add(Material.GRAY_BED);
+        blockliste.add(Material.LIGHT_BLUE_BED);
+        blockliste.add(Material.LIGHT_GRAY_BED);
+        blockliste.add(Material.LIME_BED);
+        blockliste.add(Material.MAGENTA_BED);
+        blockliste.add(Material.ORANGE_BED);
+        blockliste.add(Material.PINK_BED);
+        blockliste.add(Material.PURPLE_BED);
+        blockliste.add(Material.RED_BED);
+        blockliste.add(Material.WHITE_BED);
+        blockliste.add(Material.YELLOW_BED);
 
 
         spizhackenlist.add(Material.WOODEN_PICKAXE);
