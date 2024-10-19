@@ -380,7 +380,8 @@ public class utilitys {
         for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(UUidString))sp=sdp;
         if(!sp.getUuid().equals(UUidString)){
             spielerliste.add(new spielerprovil("",UUidString,false,false,false,false,false,false,new ArrayList<>()));
-            return new spielerprovil("",UUidString,false,false,false,false,false,false,new ArrayList<>());
+            return new spielerprovil(Bukkit.getPlayer(UUID.fromString(UUidString))==null
+                    ? "" : Bukkit.getPlayer(UUID.fromString(UUidString)).getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING) ,UUidString,false,false,false,false,false,false,new ArrayList<>());
         } else {
             return sp;
         }
