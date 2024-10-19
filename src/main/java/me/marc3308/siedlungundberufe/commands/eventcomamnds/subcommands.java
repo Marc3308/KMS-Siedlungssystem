@@ -1,8 +1,8 @@
-package me.marc3308.siedlungundberufe.commands;
+package me.marc3308.siedlungundberufe.commands.eventcomamnds;
 
 import org.bukkit.entity.Player;
 
-public abstract class subcommand {
+public abstract class subcommands {
 
     public abstract String getName();
 

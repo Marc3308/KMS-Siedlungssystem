@@ -1,6 +1,6 @@
-package me.marc3308.siedlungundberufe.commands.subcommands;
+package me.marc3308.siedlungundberufe.commands.siedlungscommands.subcommands;
 
-import me.marc3308.siedlungundberufe.commands.subcommand;
+import me.marc3308.siedlungundberufe.commands.siedlungscommands.subcommand;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
 import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -10,7 +10,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;

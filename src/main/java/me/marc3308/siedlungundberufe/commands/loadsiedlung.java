@@ -1,5 +1,6 @@
 package me.marc3308.siedlungundberufe.commands;
 
+import me.marc3308.siedlungundberufe.objektorientierung.eventzone;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
 import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import org.bukkit.ChatColor;
@@ -13,8 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
-import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
+import static me.marc3308.siedlungundberufe.Siedlungundberufe.*;
 
 public class loadsiedlung implements CommandExecutor {
 
@@ -61,6 +61,24 @@ public class loadsiedlung implements CommandExecutor {
                     ,con2.getBoolean(i+".rules")
                     ,con2.getBoolean(i+".mitglied")
                     ,con2.getStringList(i+".voteckicks")));
+        }
+
+        eventzoneliste.clear();
+
+        File file3 = new File("plugins/KMS Plugins/Siedlungundberufe","Eventzonen.yml");
+        FileConfiguration con3= YamlConfiguration.loadConfiguration(file2);
+
+        //load eventzonen
+        for (int i = 0; i < 300; i++) {
+            if(con3.get(i+".Name")==null)break;
+            eventzoneliste.add(new eventzone(
+                    con2.getString(i+".Name")
+                    ,con2.getLocation(i+".loc1")
+                    ,con2.getLocation(i+".loc2")
+                    ,con2.getInt(i+".Time")
+                    ,con2.getBoolean(i+".Tp")
+                    ,con2.getLocation(i+".TpLocation")
+                    ,con2.getDouble(i+".Schaden")));
         }
 
             System.out.println(ChatColor.GREEN+"Siedlungen wurden geladen");

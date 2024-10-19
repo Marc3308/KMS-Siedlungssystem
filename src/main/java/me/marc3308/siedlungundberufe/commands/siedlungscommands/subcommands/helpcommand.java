@@ -1,6 +1,6 @@
-package me.marc3308.siedlungundberufe.commands.subcommands;
+package me.marc3308.siedlungundberufe.commands.siedlungscommands.subcommands;
 
-import me.marc3308.siedlungundberufe.commands.subcommand;
+import me.marc3308.siedlungundberufe.commands.siedlungscommands.subcommand;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 

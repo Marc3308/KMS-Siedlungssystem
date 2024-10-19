@@ -1,7 +1,6 @@
-package me.marc3308.siedlungundberufe.commands.subcommands;
+package me.marc3308.siedlungundberufe.commands.siedlungscommands.subcommands;
 
-import me.marc3308.siedlungundberufe.Siedlungundberufe;
-import me.marc3308.siedlungundberufe.commands.subcommand;
+import me.marc3308.siedlungundberufe.commands.siedlungscommands.subcommand;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

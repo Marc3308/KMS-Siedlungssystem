@@ -1,5 +1,6 @@
 package me.marc3308.siedlungundberufe;
 
+import me.marc3308.siedlungundberufe.objektorientierung.eventzone;
 import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -21,8 +22,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 
-import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
-import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
+import static me.marc3308.siedlungundberufe.Siedlungundberufe.*;
 import static org.bukkit.Bukkit.getServer;
 
 public class utilitys {
@@ -83,6 +83,30 @@ public class utilitys {
             i.printStackTrace();
         }
 
+        file = new File("plugins/KMS Plugins/Siedlungundberufe","Eventzonen.yml");
+        con= YamlConfiguration.loadConfiguration(file);
+
+        //remove
+        for (int i=0;i<100;i++)con.set(String.valueOf(i),null);
+
+        //save
+        for (eventzone s : eventzoneliste){
+            con.set(spielerliste.indexOf(s)+".Name",s.getName());
+            con.set(spielerliste.indexOf(s)+".loc1",s.getLoc1());
+            con.set(spielerliste.indexOf(s)+".loc2",s.getLoc2());
+            con.set(spielerliste.indexOf(s)+".Time",s.getTime());
+            con.set(spielerliste.indexOf(s)+".Tp",s.isTp());
+            con.set(spielerliste.indexOf(s)+".TpLocation",s.getTpLocation());
+            con.set(spielerliste.indexOf(s)+".Schaden",s.getSchaden());
+        }
+
+        //final save
+        try {
+            con.save(file);
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+
     }
 
     public static int inasone(Location loc){
@@ -96,6 +120,23 @@ public class utilitys {
             if(minx<=loc.getX() && maxx>=loc.getX()
                     && minz<=loc.getZ() && maxz>=loc.getZ())return siedlungsliste.indexOf(s);
 
+        }
+        return -1;
+    }
+
+    public static int ineventsone(Location loc){
+        if(eventzoneliste.isEmpty())return -1;
+        for(eventzone s : eventzoneliste){
+            double minx = s.getLoc1().getX()<s.getLoc2().getX() ? s.getLoc1().getX() : s.getLoc2().getX();
+            double miny = s.getLoc1().getY()<s.getLoc2().getY() ? s.getLoc1().getY() : s.getLoc2().getY();
+            double minz = s.getLoc1().getZ()<s.getLoc2().getZ() ? s.getLoc1().getZ() : s.getLoc2().getZ();
+            double maxx = s.getLoc1().getX()>s.getLoc2().getX() ? s.getLoc1().getX() : s.getLoc2().getX();
+            double maxy = s.getLoc1().getY()<s.getLoc2().getY() ? s.getLoc1().getY() : s.getLoc2().getY();
+            double maxz = s.getLoc1().getZ()>s.getLoc2().getZ() ? s.getLoc1().getZ() : s.getLoc2().getZ();
+
+            if(minx<=loc.getX() && maxx>=loc.getX()
+                    && miny<=loc.getY() && maxy>=loc.getY()
+                    && minz<=loc.getZ() && maxz>=loc.getZ())return eventzoneliste.indexOf(s);
         }
         return -1;
     }
@@ -374,8 +415,8 @@ public class utilitys {
     }
 
     public static spielerprovil getSpielerprovile(String UUidString){
-        //get spielerprofil
 
+        //get spielerprofil
         spielerprovil sp=spielerliste.get(0);
         for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(UUidString))sp=sdp;
         if(!sp.getUuid().equals(UUidString)){

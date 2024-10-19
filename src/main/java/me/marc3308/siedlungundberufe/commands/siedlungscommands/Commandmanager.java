@@ -1,6 +1,6 @@
-package me.marc3308.siedlungundberufe.commands;
+package me.marc3308.siedlungundberufe.commands.siedlungscommands;
 
-import me.marc3308.siedlungundberufe.commands.subcommands.*;
+import me.marc3308.siedlungundberufe.commands.siedlungscommands.subcommands.*;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
