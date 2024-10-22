@@ -5,12 +5,10 @@ import me.marc3308.siedlungundberufe.GUI.siedlungsgui;
 import me.marc3308.siedlungundberufe.Siedlungsevents.siedlungeinstellung.spawningregulation;
 import me.marc3308.siedlungundberufe.Siedlungsevents.spielerevents.blockevents;
 import me.marc3308.siedlungundberufe.Siedlungsevents.spielerevents.joinevent;
-import me.marc3308.siedlungundberufe.commands.eventcomamnds.CommandManager;
 import me.marc3308.siedlungundberufe.commands.siedlungscommands.Commandmanager;
 import me.marc3308.siedlungundberufe.commands.einladungen;
 import me.marc3308.siedlungundberufe.commands.loadsiedlung;
 import me.marc3308.siedlungundberufe.commands.savecommand;
-import me.marc3308.siedlungundberufe.objektorientierung.eventzone;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
 import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import org.bukkit.Bukkit;
@@ -22,8 +20,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,8 +30,6 @@ import static me.marc3308.siedlungundberufe.utilitys.*;
 public final class Siedlungundberufe extends JavaPlugin {
 
     public static ArrayList<siedlung> siedlungsliste=new ArrayList<>();
-    public static ArrayList<eventzone> eventzoneliste=new ArrayList<>();
-
     public static ArrayList<spielerprovil> spielerliste=new ArrayList<>();
     public static HashMap<Location, BlockData> kapputblockliste=new HashMap<>();
 
@@ -53,17 +47,7 @@ public final class Siedlungundberufe extends JavaPlugin {
                 //check if in a sone with cool new stream funktion
                 for(Player p : Bukkit.getOnlinePlayers()){
 
-                    if(ineventsone(p.getLocation())!=-1){
-                        eventzone ev=eventzoneliste.get(ineventsone(p.getLocation()));
-                        if(ev.isTp()){
-                            p.setFallDistance(0);
-                            p.teleport(ev.getTpLocation());
-                            p.damage(ev.getSchaden());
-                            p.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA,20*3,1,false,false));
-                        } else {
-                            p.setPlayerTime(ev.getTime(),false);
-                        }
-                    } else if(!siedlungsliste.isEmpty()){
+                    if(!siedlungsliste.isEmpty()){
                         //check if player is in a sone
                         int sone=inasone(p.getLocation());
 
@@ -122,29 +106,11 @@ public final class Siedlungundberufe extends JavaPlugin {
                     ,con2.getStringList(i+".voteckicks")));
         }
 
-        File file3 = new File("plugins/KMS Plugins/Siedlungundberufe","Eventzonen.yml");
-        FileConfiguration con3= YamlConfiguration.loadConfiguration(file2);
-
-        //load eventzonen
-        for (int i = 0; i < 300; i++) {
-            if(con3.get(i+".Name")==null)break;
-            eventzoneliste.add(new eventzone(
-                    con2.getString(i+".Name")
-                    ,con2.getLocation(i+".loc1")
-                    ,con2.getLocation(i+".loc2")
-                    ,con2.getInt(i+".Time")
-                    ,con2.getBoolean(i+".Tp")
-                    ,con2.getLocation(i+".TpLocation")
-                    ,con2.getDouble(i+".Schaden")));
-        }
-
-
         //commands
         getCommand("savesiedlungen").setExecutor(new savecommand());
         getCommand("loadsiedlungyml").setExecutor(new loadsiedlung());
         getCommand("Siedlung").setExecutor(new Commandmanager());
         getCommand("einladung").setExecutor(new einladungen());
-        getCommand("event").setExecutor(new CommandManager());
 
         //events
         Bukkit.getPluginManager().registerEvents(new Verteilergui(),this);
