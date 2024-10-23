@@ -12,8 +12,6 @@ commands:
     description: saves the siedlungen in the yml
   einladung:
     description: a siedlungs invite
-  event:
-    description: create event eria
 permissions:
   siedlungsmod:
     description: Darf siedlungen erstellen

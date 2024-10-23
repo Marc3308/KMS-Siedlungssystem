@@ -2,14 +2,17 @@ package me.marc3308.siedlungundberufe.Siedlungsevents.spielerevents;
 
 import me.marc3308.siedlungundberufe.Siedlungundberufe;
 import org.bukkit.*;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.ArrayList;
 
@@ -142,5 +145,50 @@ public class blockevents implements Listener {
         p.playSound(p, Sound.BLOCK_LAVA_EXTINGUISH,1,1);
         p.playEffect(e.getBlock().getLocation(), Effect.EXTINGUISH,20);
         p.sendMessage(error);
+    }
+
+    @EventHandler
+    public void onrustung(PlayerInteractAtEntityEvent e){
+        Player p=e.getPlayer();
+        if(darferdas(p,e.getRightClicked().getLocation(), "abbaun"))return;
+        if(!(e.getRightClicked() instanceof ArmorStand))return;
+        e.setCancelled(true);
+
+        //warnung an den spieler
+        p.playSound(p, Sound.BLOCK_LAVA_EXTINGUISH,1,1);
+        p.playEffect(p.getLocation(), Effect.EXTINGUISH,20);
+        p.sendMessage(error);
+    }
+
+    @EventHandler
+    public void onblock(PlayerInteractEvent e){
+        Player p=e.getPlayer();
+        if(e.getClickedBlock()==null)return;
+        if(darferdas(p,e.getClickedBlock().getLocation(), "abbaun"))return;
+        if(e.getClickedBlock().getType().equals(Material.GLOW_BERRIES) || e.getClickedBlock().getType().equals(Material.FLOWER_POT))return;
+        e.setCancelled(true);
+
+        //warnung an den spieler
+        p.playSound(p, Sound.BLOCK_LAVA_EXTINGUISH,1,1);
+        p.playEffect(p.getLocation(), Effect.EXTINGUISH,20);
+        p.sendMessage(error);
+    }
+
+    @EventHandler
+    public void onschlag(EntityDamageByEntityEvent e){
+        if(!(e.getEntity() instanceof ArmorStand || e.getEntity() instanceof ItemFrame || e.getEntity() instanceof GlowItemFrame))return;
+        if(e.getDamager() instanceof Player){
+            Player p= (Player) e.getDamager();
+            if(darferdas(p,e.getEntity().getLocation(), "abbaun"))return;
+
+            e.setCancelled(true);
+            //warnung an den spieler
+            p.playSound(p, Sound.BLOCK_LAVA_EXTINGUISH,1,1);
+            p.playEffect(p.getLocation(), Effect.EXTINGUISH,20);
+            p.sendMessage(error);
+        } else if(e.getDamager() instanceof Projectile){
+            e.setCancelled(true);
+            return;
+        }
     }
 }

@@ -93,7 +93,6 @@ public class utilitys {
 
             if(minx<=loc.getX() && maxx>=loc.getX()
                     && minz<=loc.getZ() && maxz>=loc.getZ())return siedlungsliste.indexOf(s);
-
         }
         return -1;
     }
