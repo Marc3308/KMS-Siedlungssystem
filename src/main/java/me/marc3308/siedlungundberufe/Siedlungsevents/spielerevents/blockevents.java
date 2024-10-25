@@ -8,6 +8,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
@@ -23,10 +25,12 @@ public class blockevents implements Listener {
 
     private static ArrayList<Material> blockliste=new ArrayList<>();
     private static ArrayList<Material> spizhackenlist=new ArrayList<>();
+    private static ArrayList<Material> flowerpods=new ArrayList<>();
 
-    private static String error=ChatColor.RED+""+ChatColor.BOLD+"WARNUNG"+ChatColor.RESET+""+ChatColor.GRAY+" Du hast hier keine Berichtung für diese Aktion.";
 
-    public blockevents(){
+    private static String error=ChatColor.RED+""+ChatColor.BOLD+"WARNUNG"+ChatColor.RESET+""+ChatColor.GRAY+" Du hast hier keine Berechtigung für diese Aktion.";
+
+    public blockevents() {
         blockliste.add(Material.CHEST);
         blockliste.add(Material.CHEST_MINECART);
         blockliste.add(Material.ENDER_CHEST);
@@ -79,7 +83,47 @@ public class blockevents implements Listener {
         spizhackenlist.add(Material.STONE_HOE);
         spizhackenlist.add(Material.IRON_HOE);
         spizhackenlist.add(Material.DIAMOND_HOE);
+
+        flowerpods.add(Material.CAVE_VINES);
+        flowerpods.add(Material.TWISTING_VINES_PLANT);
+        flowerpods.add(Material.WEEPING_VINES_PLANT);
+        flowerpods.add(Material.FLOWER_POT);
+        flowerpods.add(Material.POTTED_MANGROVE_PROPAGULE);
+        flowerpods.add(Material.POTTED_WITHER_ROSE);
+        flowerpods.add(Material.POTTED_ALLIUM);
+        flowerpods.add(Material.POTTED_ACACIA_SAPLING);
+        flowerpods.add(Material.POTTED_BAMBOO);
+        flowerpods.add(Material.POTTED_AZALEA_BUSH);
+        flowerpods.add(Material.POTTED_AZURE_BLUET);
+        flowerpods.add(Material.POTTED_BIRCH_SAPLING);
+        flowerpods.add(Material.POTTED_BLUE_ORCHID);
+        flowerpods.add(Material.POTTED_BROWN_MUSHROOM);
+        flowerpods.add(Material.POTTED_CACTUS);
+        flowerpods.add(Material.POTTED_CORNFLOWER);
+        flowerpods.add(Material.POTTED_CHERRY_SAPLING);
+        flowerpods.add(Material.POTTED_CRIMSON_FUNGUS);
+        flowerpods.add(Material.POTTED_CRIMSON_ROOTS);
+        flowerpods.add(Material.POTTED_DANDELION);
+        flowerpods.add(Material.POTTED_DARK_OAK_SAPLING);
+        flowerpods.add(Material.POTTED_DEAD_BUSH);
+        flowerpods.add(Material.POTTED_FERN);
+        flowerpods.add(Material.POTTED_FLOWERING_AZALEA_BUSH);
+        flowerpods.add(Material.POTTED_JUNGLE_SAPLING);
+        flowerpods.add(Material.POTTED_LILY_OF_THE_VALLEY);
+        flowerpods.add(Material.POTTED_OAK_SAPLING);
+        flowerpods.add(Material.POTTED_ORANGE_TULIP);
+        flowerpods.add(Material.POTTED_OXEYE_DAISY);
+        flowerpods.add(Material.POTTED_PINK_TULIP);
+        flowerpods.add(Material.POTTED_SPRUCE_SAPLING);
+        flowerpods.add(Material.POTTED_TORCHFLOWER);
+        flowerpods.add(Material.POTTED_WARPED_FUNGUS);
+        flowerpods.add(Material.POTTED_WARPED_ROOTS);
+        flowerpods.add(Material.POTTED_WHITE_TULIP);
+        flowerpods.add(Material.POTTED_POPPY);
+        flowerpods.add(Material.POTTED_RED_MUSHROOM);
+        flowerpods.add(Material.POTTED_RED_TULIP);
     }
+
 
     @EventHandler
     public void onbreak(BlockBreakEvent e){
@@ -151,7 +195,21 @@ public class blockevents implements Listener {
     public void onrustung(PlayerInteractAtEntityEvent e){
         Player p=e.getPlayer();
         if(darferdas(p,e.getRightClicked().getLocation(), "abbaun"))return;
-        if(!(e.getRightClicked() instanceof ArmorStand))return;
+        if(!(e.getRightClicked() instanceof ArmorStand) && !(e.getRightClicked() instanceof ItemFrame) && !(e.getRightClicked() instanceof GlowItemFrame))return;
+        e.setCancelled(true);
+
+        //warnung an den spieler
+        p.playSound(p, Sound.BLOCK_LAVA_EXTINGUISH,1,1);
+        p.playEffect(p.getLocation(), Effect.EXTINGUISH,20);
+        p.sendMessage(error);
+    }
+
+    @EventHandler
+    public void onitem(EntityDeathEvent e){
+        if(!(e.getEntity() instanceof ItemFrame || e.getEntity() instanceof GlowItemFrame || e.getEntity() instanceof Painting))return;
+        if(e.getEntity().getKiller()==null)return;
+        Player p=e.getEntity().getKiller();
+        if(darferdas(p,e.getEntity().getLocation(), "abbaun"))return;
         e.setCancelled(true);
 
         //warnung an den spieler
@@ -164,8 +222,8 @@ public class blockevents implements Listener {
     public void onblock(PlayerInteractEvent e){
         Player p=e.getPlayer();
         if(e.getClickedBlock()==null)return;
+        if(!flowerpods.contains(e.getClickedBlock().getType()))return;
         if(darferdas(p,e.getClickedBlock().getLocation(), "abbaun"))return;
-        if(e.getClickedBlock().getType().equals(Material.GLOW_BERRIES) || e.getClickedBlock().getType().equals(Material.FLOWER_POT))return;
         e.setCancelled(true);
 
         //warnung an den spieler
