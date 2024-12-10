@@ -2,7 +2,12 @@ package me.marc3308.siedlungundberufe;
 
 import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Chest;
+import org.bukkit.block.Container;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.io.File;
@@ -22,6 +27,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import java.util.ArrayList;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.*;
+import static org.bukkit.Bukkit.getPotionBrewer;
 import static org.bukkit.Bukkit.getServer;
 
 public class utilitys {
@@ -101,14 +107,99 @@ public class utilitys {
         if(!p.getGameMode().equals(GameMode.SURVIVAL))return true; //ist als mod/admin unterwegs
         int sone=inasone(loc);
         if(sone<0)return true; //in keiner zone
+        if(berechtigung.equals("kisten") && p.getWorld().getBlockAt(loc).getState() instanceof Container container){ //kisten
+            switch (container.getCustomName()){
+                case "§aJeder":
+                    return true;
+                case "§eNur Mitglieder & Gäste":
+                    if(p.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), sone+"gast"))
+                            && p.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), inasone(p.getLocation())+berechtigung), PersistentDataType.BOOLEAN))return true; //gast einer zone
+                    if(!p.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER))return false; //hat keine zonenenangehörikeit
+                    if(p.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER).equals(sone))return getSpielerprovile(p.getUniqueId().toString()).isKisten(); //darf kistenöfnen
+                    return false;
+                case "§6Nur Mitglieder":
+                    if(!p.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER))return false; //hat keine zonenenangehörikeit
+                    if(p.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER).equals(sone))return getSpielerprovile(p.getUniqueId().toString()).isKisten(); //darf kistenöfnen
+                    return false;
+                case "§cNur Volksanführer":
+                    if(siedlungsliste.get(sone).getOwner().contains(p.getUniqueId().toString()))return true;
+                    return false;
+                default:
+                    if(siedlungsliste.get(sone).getOwner().contains(p.getUniqueId().toString()))return true;
+                    if(p.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING).equals(container.getCustomName()))return true;
+                    return false;
+            }
+        }
+
+        //restliche berechtigungen
         if(p.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), sone+"gast"))
                 && p.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), inasone(p.getLocation())+berechtigung), PersistentDataType.BOOLEAN))return true; //gast einer zone
         if(!p.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER))return false; //hat keine zonenenangehörikeit
         if(p.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER).equals(sone)){ //mitglied der zone
             spielerprovil sp =getSpielerprovile(p.getUniqueId().toString());
-            if(berechtigung.equals("abbaun"))return sp.isAbbau(); //darf abbaun
+            if(berechtigung.equals("abbaun")){ //darf abbaun
+                if(siedlungsliste.get(sone).getOwner().contains(p.getUniqueId().toString())
+                        && p.isSneaking()
+                        && p.getInventory().getItemInMainHand().getType().isAir()
+                        && p.getWorld().getBlockAt(loc).getState() instanceof Container container){ //check if openmenu
+                    try {
+                        switch (container.getCustomName()){
+                            case "§aJeder":
+                                container.setCustomName("§eNur Mitglieder & Gäste");
+                                container.update();
+                                Particle.DustOptions dustOptions = new Particle.DustOptions(Color.YELLOW, 1.0f); // Color and size
+                                p.getWorld().spawnParticle(Particle.DUST, container.getLocation().add(0.5,0,0.5), 50, 0.5, 0.5, 0.5, dustOptions);
+
+                                break;
+                            case "§eNur Mitglieder & Gäste":
+                                container.setCustomName("§6Nur Mitglieder");
+                                container.update();
+                                Particle.DustOptions dustOptions2 = new Particle.DustOptions(Color.ORANGE, 1.0f); // Color and size
+                                p.getWorld().spawnParticle(Particle.DUST, container.getLocation().add(0.5,0,0.5), 50, 0.5, 0.5, 0.5, dustOptions2);
+                                break;
+                            case "§6Nur Mitglieder":
+                                container.setCustomName("§cNur Volksanführer");
+                                container.update();
+                                Particle.DustOptions dustOptions3 = new Particle.DustOptions(Color.RED, 1.0f); // Color and size
+                                p.getWorld().spawnParticle(Particle.DUST, container.getLocation().add(0.5,0,0.5), 50, 0.5, 0.5, 0.5, dustOptions3);
+                                break;
+                            case "§cNur Volksanführer":
+
+                                Player pl =container.getLocation().getWorld().getNearbyEntities(container.getLocation(),5,5,5).stream()
+                                        .filter(entity -> entity instanceof Player) // Filter for players
+                                        .map(entity -> (Player) entity) // Cast to Player
+                                        .min((p1, p2) -> Double.compare(p1.getLocation().distance(container.getLocation()), p2.getLocation().distance(container.getLocation())))
+                                        .orElse(p);
+
+                                container.setCustomName(pl.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING));
+                                container.update();
+                                Particle.DustOptions dustOptions4 = new Particle.DustOptions(Color.GRAY, 1.0f); // Color and size
+                                p.getWorld().spawnParticle(Particle.DUST, container.getLocation().add(0.5,0,0.5), 50, 0.5, 0.5, 0.5, dustOptions4);
+                                break;
+                            default:
+                                container.setCustomName("§aJeder");
+                                container.update();
+                                Particle.DustOptions dustOptions6 = new Particle.DustOptions(Color.GREEN, 1.0f); // Color and size
+                                p.getWorld().spawnParticle(Particle.DUST, container.getLocation().add(0.5,0,0.5), 50, 0.5, 0.5, 0.5, dustOptions6);
+                                break;
+                        }
+                    } catch (NullPointerException e){
+                        container.setCustomName("§eNur Mitglieder & Gäste");
+                        container.update();
+                    }
+                    ArmorStand newowner=p.getWorld().spawn(container.getLocation().add(0.5,0,0.5),ArmorStand.class);
+                    newowner.setVisible(false);
+                    newowner.setCustomNameVisible(true);
+                    newowner.setCustomName(container.getCustomName());
+                    newowner.setGravity(false);
+                    newowner.setSmall(true);
+                    newowner.setInvulnerable(true);
+                    Bukkit.getScheduler().runTaskLater(Siedlungundberufe.getPlugin(), () -> newowner.remove(), 20L);
+
+                }
+                return sp.isAbbau(); //darf abbaun
+            }
             if(berechtigung.equals("hinbaun"))return sp.isHinbau(); //darf baun
-            if(berechtigung.equals("kisten"))return sp.isKisten(); //darf kistenöfnen
         }
         return false; //einfach so
     }

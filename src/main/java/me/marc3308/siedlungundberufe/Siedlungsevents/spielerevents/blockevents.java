@@ -2,6 +2,7 @@ package me.marc3308.siedlungundberufe.Siedlungsevents.spielerevents;
 
 import me.marc3308.siedlungundberufe.Siedlungundberufe;
 import org.bukkit.*;
+import org.bukkit.block.Container;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,8 +10,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
@@ -128,7 +129,15 @@ public class blockevents implements Listener {
     @EventHandler
     public void onbreak(BlockBreakEvent e){
         Player p=e.getPlayer();
-        if(darferdas(p,e.getBlock().getLocation(), "abbaun"))return;
+        if(darferdas(p,e.getBlock().getLocation(), "abbaun")){
+            if(e.getBlock().getState() instanceof Container container){
+                if (container.getCustomName()!=null){
+                    container.setCustomName(null);
+                    container.update();
+                }
+            }
+            return;
+        }
         if(!spizhackenlist.contains(p.getInventory().getItemInMainHand().getType()) || blockliste.contains(e.getBlock().getType())){
             e.setCancelled(true);
             //warnung an den spieler
@@ -169,14 +178,24 @@ public class blockevents implements Listener {
     @EventHandler
     public void onknopf(InventoryClickEvent e){
         Player p= (Player) e.getWhoClicked();
-        if(e.getView().getType().equals(InventoryType.CRAFTING))return; //if it is your inventory
-        if(e.getInventory().getType().equals(InventoryType.CHEST) && !e.getView().getTitle().equals("Chest") && !e.getView().getTitle().equals("Large Chest"))return; //if it is  acustem inv
-        if(darferdas(p,p.getLocation(), "kisten"))return;
+        if(!(e.getInventory().getHolder() instanceof Container container))return;
+        if(darferdas(p,container.getBlock().getLocation(), "kisten"))return;
         e.setCancelled(true);
 
         //warnung an den spieler
         p.playSound(p, Sound.BLOCK_LAVA_EXTINGUISH,1,1);
         p.sendMessage(error);
+    }
+
+    @EventHandler
+    public void oninvopen(InventoryOpenEvent e){
+        Player p = (Player) e.getPlayer();
+        if(!(e.getInventory().getHolder() instanceof Container container))return;
+        if(container.getCustomName()==null){
+            container.setCustomName("§eNur Mitglieder & Gäste");
+            container.update();
+            p.updateInventory();
+        }
     }
 
     @EventHandler
@@ -222,8 +241,8 @@ public class blockevents implements Listener {
     public void onblock(PlayerInteractEvent e){
         Player p=e.getPlayer();
         if(e.getClickedBlock()==null)return;
-        if(!flowerpods.contains(e.getClickedBlock().getType()))return;
         if(darferdas(p,e.getClickedBlock().getLocation(), "abbaun"))return;
+        if(!flowerpods.contains(e.getClickedBlock().getType()))return;
         e.setCancelled(true);
 
         //warnung an den spieler
