@@ -4,6 +4,7 @@ import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Container;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -27,7 +28,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import java.util.ArrayList;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.*;
-import static org.bukkit.Bukkit.getPotionBrewer;
 import static org.bukkit.Bukkit.getServer;
 
 public class utilitys {
@@ -107,8 +107,11 @@ public class utilitys {
         if(!p.getGameMode().equals(GameMode.SURVIVAL))return true; //ist als mod/admin unterwegs
         int sone=inasone(loc);
         if(sone<0)return true; //in keiner zone
-        if(berechtigung.equals("kisten") && p.getWorld().getBlockAt(loc).getState() instanceof Container container){ //kisten
-            switch (container.getCustomName()){
+        if(berechtigung.equals("kisten") && (p.getWorld().getBlockAt(loc).getState() instanceof Container || p.getWorld().getBlockAt(loc).getState() instanceof Chest) ){ //kisten
+
+            String name=p.getWorld().getBlockAt(loc).getState() instanceof Container container ? container.getCustomName()
+                    : ((Chest) ((DoubleChest) p.getWorld().getBlockAt(loc).getState()).getLeftSide()).getCustomName();
+            switch (name){
                 case "§aJeder":
                     return true;
                 case "§eNur Mitglieder & Gäste":
@@ -126,7 +129,7 @@ public class utilitys {
                     return false;
                 default:
                     if(siedlungsliste.get(sone).getOwner().contains(p.getUniqueId().toString()))return true;
-                    if(p.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING).equals(container.getCustomName()))return true;
+                    if(p.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING).equals(name))return true;
                     return false;
             }
         }
@@ -196,6 +199,14 @@ public class utilitys {
                     newowner.setInvulnerable(true);
                     Bukkit.getScheduler().runTaskLater(Siedlungundberufe.getPlugin(), () -> newowner.remove(), 20L);
 
+                    if(p.getWorld().getBlockAt(loc).getState() instanceof Chest chest && chest.getInventory().getHolder() instanceof DoubleChest dp){
+                        Chest lt= (Chest) dp.getLeftSide();
+                        Chest rt= (Chest) dp.getRightSide();
+                        lt.setCustomName(container.getCustomName());
+                        rt.setCustomName(container.getCustomName());
+                        lt.update();
+                        rt.update();
+                    }
                 }
                 return sp.isAbbau(); //darf abbaun
             }

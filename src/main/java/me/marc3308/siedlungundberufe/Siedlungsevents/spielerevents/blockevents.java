@@ -2,7 +2,9 @@ package me.marc3308.siedlungundberufe.Siedlungsevents.spielerevents;
 
 import me.marc3308.siedlungundberufe.Siedlungundberufe;
 import org.bukkit.*;
+import org.bukkit.block.Chest;
 import org.bukkit.block.Container;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,7 +14,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -178,8 +179,8 @@ public class blockevents implements Listener {
     @EventHandler
     public void onknopf(InventoryClickEvent e){
         Player p= (Player) e.getWhoClicked();
-        if(!(e.getInventory().getHolder() instanceof Container container))return;
-        if(darferdas(p,container.getBlock().getLocation(), "kisten"))return;
+        if(!(e.getInventory().getHolder() instanceof Container || e.getInventory().getHolder() instanceof DoubleChest))return;
+        if(darferdas(p,e.getInventory().getLocation(), "kisten"))return; //container.getBlock().getLocation()
         e.setCancelled(true);
 
         //warnung an den spieler
@@ -190,10 +191,18 @@ public class blockevents implements Listener {
     @EventHandler
     public void oninvopen(InventoryOpenEvent e){
         Player p = (Player) e.getPlayer();
-        if(!(e.getInventory().getHolder() instanceof Container container))return;
-        if(container.getCustomName()==null){
+        if(e.getInventory().getHolder() instanceof Container container && container.getCustomName()==null){
             container.setCustomName("§eNur Mitglieder & Gäste");
             container.update();
+            p.updateInventory();
+        }
+        if(e.getInventory().getHolder() instanceof DoubleChest container && ((Chest) container.getLeftSide()).getCustomName()==null){
+            Chest lt= (Chest) container.getLeftSide();
+            Chest rt= (Chest) container.getRightSide();
+            lt.setCustomName("§eNur Mitglieder & Gäste");
+            rt.setCustomName("§eNur Mitglieder & Gäste");
+            lt.update();
+            rt.update();
             p.updateInventory();
         }
     }
