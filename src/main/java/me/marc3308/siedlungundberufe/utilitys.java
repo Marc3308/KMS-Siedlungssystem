@@ -141,7 +141,8 @@ public class utilitys {
         if(p.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER).equals(sone)){ //mitglied der zone
             spielerprovil sp =getSpielerprovile(p.getUniqueId().toString());
             if(berechtigung.equals("abbaun")){ //darf abbaun
-                if(siedlungsliste.get(sone).getOwner().contains(p.getUniqueId().toString())
+                if((siedlungsliste.get(sone).getOwner().contains(p.getUniqueId().toString()) ||
+                        (siedlungsliste.get(sone).getMemberlist().contains(p.getUniqueId().toString()) && sp.isRules()))
                         && p.isSneaking()
                         && p.getInventory().getItemInMainHand().getType().isAir()
                         && p.getWorld().getBlockAt(loc).getState() instanceof Container container){ //check if openmenu
