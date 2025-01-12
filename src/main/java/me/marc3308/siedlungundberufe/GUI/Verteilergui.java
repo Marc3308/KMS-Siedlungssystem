@@ -1,5 +1,7 @@
 package me.marc3308.siedlungundberufe.GUI;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import me.marc3308.siedlungundberufe.Siedlungundberufe;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
 import me.marc3308.siedlungundberufe.objektorientierung.spielerprovil;
@@ -21,6 +23,7 @@ import java.util.UUID;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.*;
 import static me.marc3308.siedlungundberufe.utilitys.*;
+import static org.bukkit.Bukkit.getServer;
 
 public class Verteilergui implements Listener {
 
@@ -196,7 +199,9 @@ public class Verteilergui implements Listener {
 
             //Hinzufügen noch net mitglieder
             for (Player neuzugang : Bukkit.getOnlinePlayers()){ //keine owner
-                if(!neuzugang.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER) && inasone(neuzugang.getLocation())==siedlungsliste.indexOf(s)){
+                if(!neuzugang.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER) //keine siedlung anhörig
+                        && inasone(neuzugang.getLocation())==siedlungsliste.indexOf(s) //in der Zone
+                        && neuzugang.getStatistic(Statistic.PLAY_ONE_MINUTE)/20/60/60>=12){ //länger als 12h spielzeit
                     //create player skull
                     ItemStack head=new ItemStack(Material.PLAYER_HEAD,1,(short) 3);
                     SkullMeta skull=(SkullMeta) head.getItemMeta();

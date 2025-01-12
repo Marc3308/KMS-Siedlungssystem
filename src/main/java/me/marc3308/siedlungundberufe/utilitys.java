@@ -169,6 +169,8 @@ public class utilitys {
                                 break;
                             case "§cNur Volksanführer":
 
+                                if(!siedlungsliste.get(sone).getOwner().contains(p.getUniqueId().toString()))return sp.isAbbau();
+
                                 Player pl =container.getLocation().getWorld().getNearbyEntities(container.getLocation(),5,5,5).stream()
                                         .filter(entity -> entity instanceof Player) // Filter for players
                                         .map(entity -> (Player) entity) // Cast to Player

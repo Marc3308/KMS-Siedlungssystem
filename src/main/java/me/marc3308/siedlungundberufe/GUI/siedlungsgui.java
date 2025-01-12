@@ -145,9 +145,8 @@ public class siedlungsgui implements Listener {
                     if(ss.equals(skull.getOwningPlayer().getUniqueId().toString())){
 
                         //only owner
-                        if(s.getStufe()==1 && s.getMemberlist().size()<4
-                                || !s.getOwner().contains(p.getUniqueId().toString())
-                                && p.getGameMode().equals(GameMode.SURVIVAL))return; //so that you dont kick wenn s1 and 4min
+                        if(!s.getOwner().contains(p.getUniqueId().toString()) && p.getGameMode().equals(GameMode.SURVIVAL))return;
+                        if(s.getStufe()==1 && s.getMemberlist().size()<4 && p.getGameMode().equals(GameMode.SURVIVAL))return; //so that you dont kick wenn s1 and 4min
 
                         //get spielerprofil
                         spielerprovil sp=spielerliste.get(0);
