@@ -191,6 +191,7 @@ public class blockevents implements Listener {
     @EventHandler
     public void oninvopen(InventoryOpenEvent e){
         Player p = (Player) e.getPlayer();
+        if(e.getInventory().getLocation()==null)return;
         if(inasone(e.getInventory().getLocation())<0)return; //check if in a sone
         if(e.getInventory().getHolder() instanceof Container container && container.getCustomName()==null){
             container.setCustomName("§eNur Mitglieder & Gäste");

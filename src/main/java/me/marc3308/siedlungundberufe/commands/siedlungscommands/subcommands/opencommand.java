@@ -34,40 +34,43 @@ public class opencommand extends subcommand {
             return;
         }
 
-        siedlung s=siedlungsliste.get(0);
-        for (siedlung ss : siedlungsliste)if(ss.getOwner().equals(Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString()))s=ss;
-        switch (s.getStufe()){
-            case 0:
-                //create inventory
-                Inventory siedlung= Bukkit.createInventory(p,27,s.getName());
+        siedlungsliste.forEach(ss -> {
+            ss.getOwner().forEach(ow -> {
+                if(ow.equals(Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString())){
+                    switch (ss.getStufe()){
+                        case 0:
+                            //create inventory
+                            Inventory siedlung= Bukkit.createInventory(p,27,ss.getName());
 
-                //set items
-                siedlung.setItem(12,getItem("gäste"));
-                siedlung.setItem(14,getInvoBlock("infoblock",s));
-                siedlung.setItem(26,getItem("pfeil"));
+                            //set items
+                            siedlung.setItem(12,getItem("gäste"));
+                            siedlung.setItem(14,getInvoBlock("infoblock",ss));
+                            siedlung.setItem(26,getItem("pfeil"));
 
-                //set items
-                p.openInventory(siedlung);
-                break;
-            case 1:
-                //create inventory
-                Inventory siedlungtier1= Bukkit.createInventory(p,27,s.getName());
+                            //set items
+                            p.openInventory(siedlung);
+                            break;
+                        case 1:
+                            //create inventory
+                            Inventory siedlungtier1= Bukkit.createInventory(p,27,ss.getName());
 
-                //set items
-                siedlungtier1.setItem(10,getItem("einstellung"));
-                siedlungtier1.setItem(12,getItem("people"));
-                siedlungtier1.setItem(14,getItem("beruf"));
-                siedlungtier1.setItem(16,getInvoBlock("infoblock",s));
-                siedlungtier1.setItem(26,getItem("pfeil"));
+                            //set items
+                            siedlungtier1.setItem(10,getItem("einstellung"));
+                            siedlungtier1.setItem(12,getItem("people"));
+                            siedlungtier1.setItem(14,getItem("beruf"));
+                            siedlungtier1.setItem(16,getInvoBlock("infoblock",ss));
+                            siedlungtier1.setItem(26,getItem("pfeil"));
 
-                //set items
-                p.openInventory(siedlungtier1);
-                break;
-            case 2:
-                break;
-            default:
-                break;
-        }
-
+                            //set items
+                            p.openInventory(siedlungtier1);
+                            break;
+                        case 2:
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
+        });
     }
 }

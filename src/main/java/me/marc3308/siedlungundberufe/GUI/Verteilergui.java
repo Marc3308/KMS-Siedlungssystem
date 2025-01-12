@@ -34,10 +34,19 @@ public class Verteilergui implements Listener {
         Player p= (Player) e.getPlayer();
         if(!p.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER) && !p.getPersistentDataContainer().has(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER))return;
 
+        siedlung s = siedlungsliste.get(0);
 
-        siedlung s =siedlungsliste.get(p.getPersistentDataContainer().has(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER)
-                ? p.getPersistentDataContainer().get(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER)
-                : p.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER));
+        //if einladung compare open event
+        if(p.getPersistentDataContainer().has(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER)){
+            s = siedlungsliste.get(p.getPersistentDataContainer().get(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER));
+        } else {
+            for (siedlung ss : siedlungsliste){
+                if(e.getView().getTitle().split(">")[0].replace(" ","").equalsIgnoreCase(ss.getName())){
+                    s = ss;
+                    break;
+                }
+            }
+        }
 
         //ja idk
         ArrayList<Integer> hinzulist=new ArrayList<Integer>();
@@ -67,7 +76,6 @@ public class Verteilergui implements Listener {
         rauslist.add(41);
         rauslist.add(42);
         rauslist.add(43);
-
 
         //die warteshlange
         if(e.getView().getTitle().equalsIgnoreCase("Siedlungswarteschlange    ")){

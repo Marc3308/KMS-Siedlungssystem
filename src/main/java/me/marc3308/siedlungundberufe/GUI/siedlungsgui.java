@@ -32,9 +32,20 @@ public class siedlungsgui implements Listener {
 
         Player p= (Player) e.getWhoClicked();
         if(!p.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER) && !p.getPersistentDataContainer().has(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER))return;
-        siedlung s =siedlungsliste.get(p.getPersistentDataContainer().has(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER)
-                ? p.getPersistentDataContainer().get(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER)
-                : p.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER));
+
+        siedlung s = siedlungsliste.get(0);
+        //if einladung compare open event
+        if(p.getPersistentDataContainer().has(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER)){
+            s = siedlungsliste.get(p.getPersistentDataContainer().get(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER));
+        } else {
+            for (siedlung ss : siedlungsliste){
+                if(e.getView().getTitle().split(">")[0].replace(" ","").equalsIgnoreCase(ss.getName())){
+                    s = ss;
+                    break;
+                }
+            }
+        }
+
         Inventory siedlung= Bukkit.createInventory(p,27,"Siedlungswarteschlange    ");
 
         //siedlungsinventory
@@ -78,7 +89,7 @@ public class siedlungsgui implements Listener {
                     p.openInventory(mitinv);
                     break;
                 case GRAY_CONCRETE_POWDER:
-                    if(!s.getOwner().contains(p.getUniqueId().toString()))return;
+                    if(!s.getOwner().contains(p.getUniqueId().toString()) && p.getGameMode().equals(GameMode.SURVIVAL))return;
                     Inventory onerinv=Bukkit.createInventory(p,54,s.getName()+" > Anführer verwalten");
                     p.openInventory(onerinv);
                     break;
@@ -131,17 +142,18 @@ public class siedlungsgui implements Listener {
 
                 //in einer siedlung
                 for (String ss : s.getMemberlist()){
-                    if(ss.equals(Bukkit.getOfflinePlayer(skull.getOwner()).getUniqueId().toString())){
+                    if(ss.equals(skull.getOwningPlayer().getUniqueId().toString())){
 
                         //only owner
-                        if(!s.getOwner().contains(p.getUniqueId().toString()))return;
-                        if(s.getStufe()==1 && s.getMemberlist().size()<4)return; //so that you dont kick wehn s1 and 4min
+                        if(s.getStufe()==1 && s.getMemberlist().size()<4
+                                || !s.getOwner().contains(p.getUniqueId().toString())
+                                && p.getGameMode().equals(GameMode.SURVIVAL))return; //so that you dont kick wenn s1 and 4min
 
                         //get spielerprofil
                         spielerprovil sp=spielerliste.get(0);
                         for (spielerprovil sdp : spielerliste)if(sdp.getUuid().equals(ss))sp=sdp;
 
-                        if(s.getOwner().size()<1){
+                        if(s.getOwner().size()<1 || !p.getGameMode().equals(GameMode.SURVIVAL)){
                             List<String> memberlist=s.getMemberlist();
                             memberlist.remove(sp.getUuid());
                             s.setMemberlist(memberlist);
@@ -174,6 +186,7 @@ public class siedlungsgui implements Listener {
 
                 //keine siedlung aber online
                 Player gast=Bukkit.getPlayer(skull.getOwner());
+                if(gast == null)return;
 
                 //invite
                 p.sendMessage(ChatColor.GREEN+gast.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING)+ChatColor.DARK_GREEN+" wurde eingeladen");
@@ -208,12 +221,12 @@ public class siedlungsgui implements Listener {
 
                 //is a owner
                 for(String ss : s.getOwner()){
-                    if(ss.equals(Bukkit.getOfflinePlayer(skull.getOwner()).getUniqueId().toString())) {
+                    if(ss.equals(skull.getOwningPlayer().getUniqueId().toString())) {
 
                         //get spielerprofil
                         spielerprovil sp = getSpielerprovile(ss);
 
-                        if (s.getOwner().size() > 1) {
+                        if (s.getOwner().size() > 1 || !p.getGameMode().equals(GameMode.SURVIVAL)) {
                             List<String> kickvotes=sp.getVoteckicks();
 
                             if(kickvotes.contains(p.getUniqueId().toString())){
@@ -222,7 +235,7 @@ public class siedlungsgui implements Listener {
                                 kickvotes.add(p.getUniqueId().toString());
                             }
 
-                            if(s.getOwner().size()/2.0<kickvotes.size()) {
+                            if(s.getOwner().size()/2.0<kickvotes.size() || !p.getGameMode().equals(GameMode.SURVIVAL)) {
                                 sp.setVoteckicks(new ArrayList<String>());
                                 //remove owner
                                 List<String> ownerlist = s.getOwner();
@@ -251,7 +264,7 @@ public class siedlungsgui implements Listener {
                 //will be owner
                 spielerprovil sp = getSpielerprovile(Bukkit.getOfflinePlayer(skull.getOwner()).getUniqueId().toString());
 
-                if (s.getOwner().size() > 1) {
+                if (s.getOwner().size() > 1 || !p.getGameMode().equals(GameMode.SURVIVAL)) {
                     List<String> kickvotes=sp.getVoteckicks();
 
                     if(kickvotes.contains(p.getUniqueId().toString())){
@@ -260,7 +273,7 @@ public class siedlungsgui implements Listener {
                         kickvotes.add(p.getUniqueId().toString());
                     }
 
-                    if(s.getOwner().size()/2.0<kickvotes.size()) {
+                    if(s.getOwner().size()/2.0<kickvotes.size() || !p.getGameMode().equals(GameMode.SURVIVAL)) {
 
                         sp.setVoteckicks(new ArrayList<String>());
                         //remove owner
