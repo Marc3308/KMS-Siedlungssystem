@@ -1,6 +1,7 @@
 name: siedlungundberufe
 version: '1.21.1'
 main: me.marc3308.siedlungundberufe.Siedlungundberufe
+depend: [zerotrust]
 api-version: '1.21'
 
 permissions:
