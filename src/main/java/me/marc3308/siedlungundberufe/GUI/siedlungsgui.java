@@ -18,6 +18,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.*;
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
@@ -39,7 +40,7 @@ public class siedlungsgui implements Listener {
             s = siedlungsliste.get(p.getPersistentDataContainer().get(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER));
         } else {
             for (siedlung ss : siedlungsliste){
-                if(e.getView().getTitle().split(">")[0].replace(" ","").equalsIgnoreCase(ss.getName())){
+                if(e.getView().getTitle().split(" >")[0].equalsIgnoreCase(ss.getName())){
                     s = ss;
                     break;
                 }
@@ -94,7 +95,11 @@ public class siedlungsgui implements Listener {
                     p.openInventory(onerinv);
                     break;
                 case ARROW:
-                    p.openInventory(siedlung);
+                    if(p.hasPermission("siedlungsmod")){
+                        Bukkit.dispatchCommand(p,"siedlung open "+Bukkit.getOfflinePlayer(UUID.fromString(s.getOwner().get(0))).getName());
+                    } else {
+                        p.openInventory(siedlung);
+                    }
                     break;
             }
         }
@@ -418,7 +423,11 @@ public class siedlungsgui implements Listener {
                     p.openInventory(wildinv);
                     break;
                 case ARROW:
-                    p.openInventory(siedlung);
+                    if(p.hasPermission("siedlungsmod")){
+                        Bukkit.dispatchCommand(p,"siedlung open "+Bukkit.getOfflinePlayer(UUID.fromString(s.getOwner().get(0))).getName());
+                    } else {
+                        p.openInventory(siedlung);
+                    }
                     break;
             }
 

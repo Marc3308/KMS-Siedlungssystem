@@ -44,7 +44,7 @@ public class Verteilergui implements Listener {
             s = siedlungsliste.get(p.getPersistentDataContainer().get(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER));
         } else {
             for (siedlung ss : siedlungsliste){
-                if(e.getView().getTitle().split(">")[0].replace(" ","").equalsIgnoreCase(ss.getName())){
+                if(e.getView().getTitle().split(" >")[0].equalsIgnoreCase(ss.getName())){
                     s = ss;
                     break;
                 }
