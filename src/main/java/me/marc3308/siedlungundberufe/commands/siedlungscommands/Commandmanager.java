@@ -31,15 +31,14 @@ public class Commandmanager implements CommandExecutor , TabCompleter {
 
         if(!(sender instanceof Player))return false;
         Player p= (Player) sender;
-        //get me some arrows
-        if(!p.hasPermission("siedlungsmod"))return false;
 
+        //get me some arrows
         if(args.length>0){
 
+            if(args[0].equals("create"))getSubcommands().get(1).perform(p,args);
+            if(!p.hasPermission("technikdetails"))return false;
+
             switch (args[0]){
-                case "create":
-                    getSubcommands().get(1).perform(p,args);
-                    break;
                 case "edit":
                     getSubcommands().get(2).perform(p,args);
                     break;
@@ -76,17 +75,20 @@ public class Commandmanager implements CommandExecutor , TabCompleter {
             if(args.length == 2){
                 if(args[0].equals("create")){
                     for (Player pp : Bukkit.getOnlinePlayers())list.add(pp.getName().toString());
-                } else {
+                } else if (p.hasPermission("technikdetails")){
                     for(siedlung s : siedlungsliste){
                         for (String ss : s.getOwner()){
                             list.add(Bukkit.getOfflinePlayer(UUID.fromString(ss)).getName());
                         }
                     }
+                } else {
+                    return list;
                 }
             }
             if(args.length == 3){
                 switch (args[0]){
                     case "edit":
+                        if(!p.hasPermission("technikdetails"))return list;
                         list.add("Owner");
                         list.add("Mitglieder");
                         list.add("Eckpunkt1");
@@ -107,6 +109,7 @@ public class Commandmanager implements CommandExecutor , TabCompleter {
             if(args.length==4){
                 switch (args[0]){
                     case "edit":
+                        if(!p.hasPermission("technikdetails"))return list;
                         if(args[2].equals("Eckpunkt1") || args[2].equals("Eckpunkt2")){
                             list.add(String.valueOf(p.getLocation().getBlockX()));
                         } else if(args[2].equals("Owner") || args[2].equals("Mitglieder")){
@@ -126,6 +129,7 @@ public class Commandmanager implements CommandExecutor , TabCompleter {
             if(args.length==5){
                 switch (args[0]){
                     case "edit":
+                        if(!p.hasPermission("technikdetails"))return list;
                         if(args[2].equals("Eckpunkt1") || args[2].equals("Eckpunkt2"))list.add(String.valueOf(p.getLocation().getBlockZ()));
                         if(args[2].equals("Owner")){
                             if(args[3].equals("add")){
