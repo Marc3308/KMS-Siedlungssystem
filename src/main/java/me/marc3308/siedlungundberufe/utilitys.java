@@ -162,11 +162,26 @@ public class utilitys {
                                 p.getWorld().spawnParticle(Particle.DUST, container.getLocation().add(0.5,0,0.5), 50, 0.5, 0.5, 0.5, dustOptions2);
                                 break;
                             case "§6Nur Mitglieder":
-                                container.setCustomName("§cNur Volksanführer");
-                                container.update();
-                                Particle.DustOptions dustOptions3 = new Particle.DustOptions(Color.RED, 1.0f); // Color and size
-                                p.getWorld().spawnParticle(Particle.DUST, container.getLocation().add(0.5,0,0.5), 50, 0.5, 0.5, 0.5, dustOptions3);
-                                break;
+                                if(siedlungsliste.get(sone).getOwner().contains(p.getUniqueId().toString())){
+                                    container.setCustomName("§cNur Volksanführer");
+                                    container.update();
+                                    Particle.DustOptions dustOptions3 = new Particle.DustOptions(Color.RED, 1.0f); // Color and size
+                                    p.getWorld().spawnParticle(Particle.DUST, container.getLocation().add(0.5,0,0.5), 50, 0.5, 0.5, 0.5, dustOptions3);
+                                    break;
+                                } else {
+                                    Player pl =container.getLocation().getWorld().getNearbyEntities(container.getLocation(),5,5,5).stream()
+                                            .filter(entity -> entity instanceof Player) // Filter for players
+                                            .map(entity -> (Player) entity) // Cast to Player
+                                            .min((p1, p2) -> Double.compare(p1.getLocation().distance(container.getLocation()), p2.getLocation().distance(container.getLocation())))
+                                            .orElse(p);
+
+                                    container.setCustomName(pl.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING));
+                                    container.update();
+                                    Particle.DustOptions dustOptions4 = new Particle.DustOptions(Color.GRAY, 1.0f); // Color and size
+                                    p.getWorld().spawnParticle(Particle.DUST, container.getLocation().add(0.5,0,0.5), 50, 0.5, 0.5, 0.5, dustOptions4);
+                                    break;
+                                }
+
                             case "§cNur Volksanführer":
 
                                 if(!siedlungsliste.get(sone).getOwner().contains(p.getUniqueId().toString()))return sp.isAbbau();
