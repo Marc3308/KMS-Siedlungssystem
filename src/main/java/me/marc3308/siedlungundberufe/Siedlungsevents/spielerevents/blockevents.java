@@ -65,6 +65,24 @@ public class blockevents implements Listener {
         blockliste.add(Material.WHITE_BED);
         blockliste.add(Material.YELLOW_BED);
 
+        blockliste.add(Material.ACACIA_DOOR);
+        blockliste.add(Material.DARK_OAK_DOOR);
+        blockliste.add(Material.BIRCH_DOOR);
+        blockliste.add(Material.JUNGLE_DOOR);
+        blockliste.add(Material.BAMBOO_DOOR);
+        blockliste.add(Material.IRON_DOOR);
+        blockliste.add(Material.OAK_DOOR);
+        blockliste.add(Material.SPRUCE_DOOR);
+        blockliste.add(Material.CRIMSON_DOOR);
+        blockliste.add(Material.WARPED_DOOR);
+        blockliste.add(Material.COPPER_DOOR);
+        blockliste.add(Material.EXPOSED_COPPER_DOOR);
+        blockliste.add(Material.WEATHERED_COPPER_DOOR);
+        blockliste.add(Material.OXIDIZED_COPPER_DOOR);
+        blockliste.add(Material.WAXED_COPPER_DOOR);
+        blockliste.add(Material.WAXED_EXPOSED_COPPER_DOOR);
+        blockliste.add(Material.WAXED_WEATHERED_COPPER_DOOR);
+        blockliste.add(Material.WAXED_OXIDIZED_COPPER_DOOR);
 
         spizhackenlist.add(Material.WOODEN_PICKAXE);
         spizhackenlist.add(Material.STONE_PICKAXE);
