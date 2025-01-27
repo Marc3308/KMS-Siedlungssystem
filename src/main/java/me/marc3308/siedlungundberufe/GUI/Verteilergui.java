@@ -23,7 +23,6 @@ import java.util.UUID;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.*;
 import static me.marc3308.siedlungundberufe.utilitys.*;
-import static org.bukkit.Bukkit.getServer;
 
 public class Verteilergui implements Listener {
 
@@ -42,6 +41,8 @@ public class Verteilergui implements Listener {
         //if einladung compare open event
         if(p.getPersistentDataContainer().has(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER)){
             s = siedlungsliste.get(p.getPersistentDataContainer().get(new NamespacedKey(plugin, "einladung"), PersistentDataType.INTEGER));
+        } else if(e.getView().getTitle().equals("Siedlungswarteschlange    ")){
+            s = siedlungsliste.get(p.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER));
         } else {
             for (siedlung ss : siedlungsliste){
                 if(e.getView().getTitle().split(" >")[0].equalsIgnoreCase(ss.getName())){

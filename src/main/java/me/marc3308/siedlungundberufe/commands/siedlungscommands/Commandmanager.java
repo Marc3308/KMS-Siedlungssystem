@@ -66,7 +66,7 @@ public class Commandmanager implements CommandExecutor , TabCompleter {
     public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] args) {
         Player p= (Player) commandSender;
         ArrayList<String> list =new ArrayList<>();
-        if(!p.hasPermission("siedlungsmod"))return list;
+        if(!p.hasPermission("technikdetails"))return list;
 
         try {
             if(args.length == 0)return list;
