@@ -114,7 +114,7 @@ public class utilitys {
             switch (name){
                 case "§aJeder":
                     return true;
-                case "§eNur Mitglieder & Gäste":
+                case "§eNur Mitglieder und Gäste":
                     if(p.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), sone+"gast"))
                             && p.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), inasone(p.getLocation())+berechtigung), PersistentDataType.BOOLEAN))return true; //gast einer zone
                     if(!p.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER))return false; //hat keine zonenenangehörikeit
@@ -149,13 +149,13 @@ public class utilitys {
                     try {
                         switch (container.getCustomName()){
                             case "§aJeder":
-                                container.setCustomName("§eNur Mitglieder & Gäste");
+                                container.setCustomName("§eNur Mitglieder und Gäste");
                                 container.update();
                                 Particle.DustOptions dustOptions = new Particle.DustOptions(Color.YELLOW, 1.0f); // Color and size
                                 p.getWorld().spawnParticle(Particle.DUST, container.getLocation().add(0.5,0,0.5), 50, 0.5, 0.5, 0.5, dustOptions);
 
                                 break;
-                            case "§eNur Mitglieder & Gäste":
+                            case "§eNur Mitglieder und Gäste":
                                 container.setCustomName("§6Nur Mitglieder");
                                 container.update();
                                 Particle.DustOptions dustOptions2 = new Particle.DustOptions(Color.ORANGE, 1.0f); // Color and size
@@ -205,13 +205,14 @@ public class utilitys {
                                 break;
                         }
                     } catch (NullPointerException e){
-                        container.setCustomName("§eNur Mitglieder & Gäste");
+                        container.setCustomName("§eNur Mitglieder und Gäste");
                         container.update();
                     }
-                    ArmorStand newowner=p.getWorld().spawn(container.getLocation().add(0.5,0,0.5),ArmorStand.class);
+                    ArmorStand newowner=p.getWorld().spawn(container.getLocation().add(0.5,1,0.5),ArmorStand.class);
                     newowner.setVisible(false);
                     newowner.setCustomNameVisible(true);
                     newowner.setCustomName(container.getCustomName());
+                    newowner.setMarker(true);
                     newowner.setGravity(false);
                     newowner.setSmall(true);
                     newowner.setInvulnerable(true);

@@ -35,7 +35,10 @@ public class Commandmanager implements CommandExecutor , TabCompleter {
         //get me some arrows
         if(args.length>0){
 
-            if(args[0].equals("create"))getSubcommands().get(1).perform(p,args);
+            if(args[0].equals("create")){
+                getSubcommands().get(1).perform(p,args);
+                return true;
+            }
             if(!p.hasPermission("technikdetails"))return false;
 
             switch (args[0]){
@@ -50,7 +53,6 @@ public class Commandmanager implements CommandExecutor , TabCompleter {
                     break;
                 case "open":
                     getSubcommands().get(5).perform(p,args);
-
                     break;
                 default:
                     getSubcommands().get(0).perform(p,args);

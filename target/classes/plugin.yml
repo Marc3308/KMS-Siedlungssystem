@@ -11,7 +11,7 @@ permissions:
 commands:
   Siedlung:
     description: Open a Gui for creation and editing of your Siedlung
-    permission: siedlungsmod
+    permission: technikdetails
   loadsiedlungyml:
     description: load the siedlungsyms´l
   savesiedlungen:

@@ -157,6 +157,7 @@ public class blockevents implements Listener {
             }
             return;
         }
+
         if(!spizhackenlist.contains(p.getInventory().getItemInMainHand().getType()) || blockliste.contains(e.getBlock().getType())){
             e.setCancelled(true);
             //warnung an den spieler
@@ -170,8 +171,6 @@ public class blockevents implements Listener {
         e.setDropItems(false);
         Bukkit.getScheduler().runTaskLater(Siedlungundberufe.getPlugin(), () -> p.getWorld().setBlockData(e.getBlock().getLocation(),kapputblockliste.get(e.getBlock().getLocation())), 20*30);
         Bukkit.getScheduler().runTaskLater(Siedlungundberufe.getPlugin(), () -> kapputblockliste.remove(e.getBlock().getLocation()), 20*30);
-
-
     }
 
     @EventHandler
@@ -210,17 +209,33 @@ public class blockevents implements Listener {
     public void oninvopen(InventoryOpenEvent e){
         Player p = (Player) e.getPlayer();
         if(e.getInventory().getLocation()==null)return;
-        if(inasone(e.getInventory().getLocation())<0)return; //check if in a sone
-        if(e.getInventory().getHolder() instanceof Container container && container.getCustomName()==null){
-            container.setCustomName("§eNur Mitglieder & Gäste");
+        if(inasone(e.getInventory().getLocation())<0){
+            if(e.getInventory().getHolder() instanceof Container container && container.getCustomName()!=null){
+                container.setCustomName(null);
+                container.update();
+                p.updateInventory();
+            }
+            if (e.getInventory().getHolder() instanceof DoubleChest container && ((Chest) container.getLeftSide()).getCustomName()!=null){
+                Chest lt= (Chest) container.getLeftSide();
+                Chest rt= (Chest) container.getRightSide();
+                lt.setCustomName(null);
+                rt.setCustomName(null);
+                lt.update();
+                rt.update();
+                p.updateInventory();
+            }
+            return; //check if in a sone
+        }
+        if(e.getInventory().getHolder() instanceof Container container && (container.getCustomName()==null || container.getCustomName().equals("§eNur Mitglieder & Gäste"))){
+            container.setCustomName("§eNur Mitglieder und Gäste");
             container.update();
             p.updateInventory();
         }
-        if(e.getInventory().getHolder() instanceof DoubleChest container && ((Chest) container.getLeftSide()).getCustomName()==null){
+        if(e.getInventory().getHolder() instanceof DoubleChest container && (((Chest) container.getLeftSide()).getCustomName()==null || (((Chest) container.getLeftSide()).getCustomName().equals("§eNur Mitglieder & Gäste")))){
             Chest lt= (Chest) container.getLeftSide();
             Chest rt= (Chest) container.getRightSide();
-            lt.setCustomName("§eNur Mitglieder & Gäste");
-            rt.setCustomName("§eNur Mitglieder & Gäste");
+            lt.setCustomName("§eNur Mitglieder und Gäste");
+            rt.setCustomName("§eNur Mitglieder und Gäste");
             lt.update();
             rt.update();
             p.updateInventory();
