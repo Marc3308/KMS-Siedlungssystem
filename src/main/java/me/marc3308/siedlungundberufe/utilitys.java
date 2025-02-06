@@ -37,7 +37,7 @@ public class utilitys {
         FileConfiguration con= YamlConfiguration.loadConfiguration(file);
 
         //remove
-        for (int i=0;i<100;i++)con.set(String.valueOf(i),null);
+        for (int i=0;i<200;i++)con.set(String.valueOf(i),null);
 
         for (siedlung s : siedlungsliste){
             con.set(siedlungsliste.indexOf(s)+".Owner",s.getOwner());

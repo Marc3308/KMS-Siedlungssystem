@@ -58,7 +58,7 @@ public class createsiedlung extends subcommand {
             ownerliste.add(pp.getUniqueId().toString());
             siedlungsliste.add(new siedlung(ownerliste,loc1,loc2,name,"",200,"DIAMOND",new ArrayList<String>(),0,"",""));
             pp.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER,(siedlungsliste.size()-1));
-            savesiedlungen();
+            Bukkit.getScheduler().runTaskLater(Siedlungundberufe.getPlugin(), () -> savesiedlungen(),20*2);
 
             //try to worldgard
             Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),"dmarker addcorner "+args[2]+" 0 "+args[3]+" world");
