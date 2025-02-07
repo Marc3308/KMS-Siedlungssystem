@@ -6,6 +6,7 @@ import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
@@ -35,28 +36,23 @@ public class deletecommand extends subcommand {
             return;
         }
 
-        //get the siedlung
-        siedlung s = siedlungsliste.get(0);
-        for (siedlung ss : siedlungsliste)
-            for (String sss : ss.getOwner())
-                if (sss.equals(Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString())) s = ss;
-        if (!s.getOwner().contains(Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString())) {
-            p.sendMessage(ChatColor.RED + "Diese Siedlung Existiert nicht");
-            return;
-        }
+        OfflinePlayer of = Bukkit.getOfflinePlayer(args[1]);
+        siedlungsliste.stream().filter(s -> s.getOwner().contains(of.getUniqueId().toString())).findFirst().ifPresentOrElse(s ->{
+            //remove the members
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                if (s.getOwner().contains(online.getUniqueId().toString()))
+                    online.getPersistentDataContainer().remove(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"));
+                if (s.getMemberlist().contains(online.getUniqueId().toString()))
+                    online.getPersistentDataContainer().remove(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"));
+            }
 
-        //remove the members
-        for (Player online : Bukkit.getOnlinePlayers()) {
-            if (s.getOwner().contains(online.getUniqueId().toString()))
-                online.getPersistentDataContainer().remove(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"));
-            if (s.getMemberlist().contains(online.getUniqueId().toString()))
-                online.getPersistentDataContainer().remove(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"));
-        }
+            //lösche die siedlung
+            Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "dmarker deletearea " + of.getName());
+            p.sendMessage(ChatColor.GREEN + "Die Siedlung " + ChatColor.DARK_RED + s.getName() + ChatColor.GREEN + " wurde erfolgreich gelöscht" + " Nr[" + siedlungsliste.indexOf(s) + "]");
+            siedlungsliste.remove(siedlungsliste.indexOf(s));
+            savesiedlungen();
+        }, () -> p.sendMessage(ChatColor.RED + "Diese Siedlung existiert nicht"));
 
-        //lösche die siedlung
-        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "dmarker deletearea " + Bukkit.getOfflinePlayer(args[1]).getName());
-        p.sendMessage(ChatColor.GREEN + "Die Siedlung " + ChatColor.DARK_RED + s.getName() + ChatColor.GREEN + " wurde erfolgreich gelöscht" + " Nr[" + siedlungsliste.indexOf(s) + "]");
-        siedlungsliste.remove(siedlungsliste.indexOf(s));
-        savesiedlungen();
+
     }
 }

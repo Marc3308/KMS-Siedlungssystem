@@ -3,11 +3,13 @@ package me.marc3308.siedlungundberufe.commands.siedlungscommands;
 import me.marc3308.siedlungundberufe.commands.siedlungscommands.subcommands.*;
 import me.marc3308.siedlungundberufe.objektorientierung.siedlung;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -76,17 +78,14 @@ public class Commandmanager implements CommandExecutor , TabCompleter {
             if(args[0].equals("help"))return list;
             if(args.length == 2){
                 if(args[0].equals("create")){
-                    for (Player pp : Bukkit.getOnlinePlayers())list.add(pp.getName().toString());
+                    Arrays.stream(Bukkit.getOfflinePlayers()).forEach(pp -> list.add(pp.getName()));
                 } else if (p.hasPermission("technikdetails")){
-                    for(siedlung s : siedlungsliste){
-                        for (String ss : s.getOwner()){
-                            list.add(Bukkit.getOfflinePlayer(UUID.fromString(ss)).getName());
-                        }
-                    }
+                    siedlungsliste.forEach(s -> s.getOwner().forEach(ss -> list.add(Bukkit.getOfflinePlayer(UUID.fromString(ss)).getName())));
                 } else {
                     return list;
                 }
             }
+
             if(args.length == 3){
                 switch (args[0]){
                     case "edit":
@@ -108,6 +107,7 @@ public class Commandmanager implements CommandExecutor , TabCompleter {
                         return list;
                 }
             }
+
             if(args.length==4){
                 switch (args[0]){
                     case "edit":
@@ -135,10 +135,10 @@ public class Commandmanager implements CommandExecutor , TabCompleter {
                         if(args[2].equals("Eckpunkt1") || args[2].equals("Eckpunkt2"))list.add(String.valueOf(p.getLocation().getBlockZ()));
                         if(args[2].equals("Owner")){
                             if(args[3].equals("add")){
-                                for (Player pp : Bukkit.getOnlinePlayers())list.add(pp.getName());
+                                for (OfflinePlayer pp : Bukkit.getOfflinePlayers())list.add(pp.getName());
                             } else {
                                 siedlung s=siedlungsliste.get(0);
-                                for (siedlung ss : siedlungsliste)if(ss.getOwner().equals(Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString()))s=ss;
+                                for (siedlung ss : siedlungsliste)if(ss.getOwner().contains(Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString()))s=ss;
                                 for (String ss : s.getOwner()){
                                     list.add(Bukkit.getOfflinePlayer(UUID.fromString(ss)).getName());
                                 }
@@ -146,10 +146,10 @@ public class Commandmanager implements CommandExecutor , TabCompleter {
                         }
                         if(args[2].equals("Mitglieder")){
                             if(args[3].equals("add")){
-                                for (Player pp : Bukkit.getOnlinePlayers())list.add(pp.getName());
+                                for (OfflinePlayer pp : Bukkit.getOfflinePlayers())list.add(pp.getName());
                             } else {
                                 siedlung s=siedlungsliste.get(0);
-                                for (siedlung ss : siedlungsliste)if(ss.getOwner().equals(Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString()))s=ss;
+                                for (siedlung ss : siedlungsliste)if(ss.getOwner().contains(Bukkit.getOfflinePlayer(args[1]).getUniqueId().toString()))s=ss;
                                 for (String ss : s.getMemberlist()){
                                     list.add(Bukkit.getOfflinePlayer(UUID.fromString(ss)).getName());
                                 }

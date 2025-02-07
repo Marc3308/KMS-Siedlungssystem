@@ -8,10 +8,12 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.siedlungsliste;
 import static me.marc3308.siedlungundberufe.Siedlungundberufe.spielerliste;
@@ -42,22 +44,34 @@ public class createsiedlung extends subcommand {
             return;
         }
 
-        if(Bukkit.getPlayer(args[1])==null){
+        if(Bukkit.getOfflinePlayerIfCached(args[1])==null){
             p.sendMessage(ChatColor.RED+"Dieser Spieler Existiert nicht");
             return;
         }
 
-        Player pp=Bukkit.getPlayer(args[1]);
+        OfflinePlayer pp=Bukkit.getOfflinePlayer(args[1]);
+
+
+        //if player is already in a siedlung
+        if(pp.getPersistentDataContainer().has(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER)){
+            siedlung s = siedlungsliste.get(pp.getPersistentDataContainer().get(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER));
+            if(s.getOwner().contains(pp.getUniqueId().toString())){
+                List<String> ownerlist=s.getOwner();
+                ownerlist.remove(pp.getUniqueId().toString());
+                s.setOwner(ownerlist);
+            } else {
+                List<String> memberlist=s.getMemberlist();
+                memberlist.remove(pp.getUniqueId().toString());
+                s.setMemberlist(memberlist);
+            }
+        }
 
         try {
             //try to create the siedlung
             String name= pp.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING)+"´s grundstück";
             Location loc1=new Location(p.getWorld(),Integer.valueOf(args[2]),0,Integer.valueOf(args[3]));
             Location loc2=new Location(p.getWorld(),Integer.valueOf(args[4]),0,Integer.valueOf(args[5]));
-            ArrayList<String> ownerliste =new ArrayList<>();
-            ownerliste.add(pp.getUniqueId().toString());
-            siedlungsliste.add(new siedlung(ownerliste,loc1,loc2,name,"",200,"DIAMOND",new ArrayList<String>(),0,"",""));
-            pp.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER,(siedlungsliste.size()-1));
+            siedlungsliste.add(new siedlung(new ArrayList<String>(){{add(pp.getUniqueId().toString());}},loc1,loc2,name,"",200,"DIAMOND",new ArrayList<String>(),0,"",""));
             Bukkit.getScheduler().runTaskLater(Siedlungundberufe.getPlugin(), () -> savesiedlungen(),20*2);
 
             //try to worldgard
@@ -70,7 +84,6 @@ public class createsiedlung extends subcommand {
 
             //inform the players
             p.sendMessage(ChatColor.GREEN+name+ChatColor.DARK_GREEN+" wurde erfolgreich erstellt");
-            pp.sendMessage(ChatColor.GREEN+"Dir gehört nun dieser Bereich");
 
             //if already init
             for (spielerprovil sp : spielerliste){
@@ -82,9 +95,16 @@ public class createsiedlung extends subcommand {
                     sp.setMitglied(true);
                     sp.setRules(true);
                     sp.setVoteckicks(new ArrayList<>());
-                    pp.closeInventory();
                     return;
                 }
+            }
+
+            //if player is online fix
+            if(pp.isOnline()){
+                Player p2 = Bukkit.getPlayer(args[1]);
+                p2.getPersistentDataContainer().set(new NamespacedKey(Siedlungundberufe.getPlugin(), "siedlung"), PersistentDataType.INTEGER,(siedlungsliste.size()-1));
+                p2.sendMessage(ChatColor.GREEN+"Dir gehört nun dieser Bereich");
+                p2.closeInventory();
             }
 
             spielerliste.add(new spielerprovil(pp.getPersistentDataContainer().get(new NamespacedKey("klassensysteem", "secretname"), PersistentDataType.STRING)

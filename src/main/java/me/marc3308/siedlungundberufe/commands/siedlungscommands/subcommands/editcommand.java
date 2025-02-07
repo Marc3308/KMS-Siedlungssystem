@@ -61,6 +61,9 @@ public class editcommand extends subcommand {
                         s.setOwner(ownerlist);
 
                         spielerprovil sp=getSpielerprovile(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString());
+                        sp.setHinbau(true);
+                        sp.setAbbau(true);
+                        sp.setKisten(true);
                         sp.setRules(true);
                         sp.setGaste(true);
                         sp.setMitglied(true);
@@ -72,6 +75,9 @@ public class editcommand extends subcommand {
                         s.setOwner(ownerlist);
 
                         spielerprovil sp=getSpielerprovile(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString());
+                        sp.setHinbau(true);
+                        sp.setAbbau(true);
+                        sp.setKisten(true);
                         sp.setRules(false);
                         sp.setGaste(false);
                         sp.setMitglied(false);
@@ -106,7 +112,7 @@ public class editcommand extends subcommand {
                         List<String> ownerlist=s.getMemberlist();
                         ownerlist.remove(Bukkit.getOfflinePlayer(args[4]).getUniqueId().toString());
                         s.setMemberlist(ownerlist);
-                        p.sendMessage(ChatColor.GREEN+args[4]+" wurde erfolgreich rausgescmissen");
+                        p.sendMessage(ChatColor.GREEN+args[4]+" wurde erfolgreich rausgeschmissen");
                     }
 
                     savesiedlungen();
